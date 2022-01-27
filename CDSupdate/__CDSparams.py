@@ -16,20 +16,20 @@
 ## You should have received a copy of the GNU General Public License
 ## along with CDSupdate.  If not, see <https://www.gnu.org/licenses/>.
 
-#############
-## Imports ##
-#############
+## All fixed parameters
+##=====================
 
-from .__exec      import start_cdsupdate
-from .__input     import read_input
-from .__logs      import LogFile
-from .__doc       import doc
-from .__release   import version
-from .__CDSparams import CDSparams
+class CDSParams(object):
+	pass
 
-###################
-## Set variables ##
-###################
+CDSparams = CDSParams()
 
-__version__ = version
-__doc__     = doc
+CDSparams.available_area = {
+	"world"  : [-180,180,-90,90],
+	"europe" : [-25,40,34,72],
+	"northatlantic" : [-80,50,5,70],
+	"northamerica"  : [-150,-60,30,80]
+	}
+
+CDSparams.available_vars = ["tas","tasmin","tasmax"]
+
