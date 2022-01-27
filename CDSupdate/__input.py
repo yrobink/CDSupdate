@@ -21,6 +21,7 @@
 #############
 
 from .__logs import LogFile
+from .__CDSparams import CDSparams
 
 
 ###############
@@ -54,6 +55,7 @@ def read_input( argv , future_logs ):
 	kwargs = { "clog": False , "help" : False }
 	
 	## Start by read input parameters
+	##===============================
 	for i,arg in enumerate(argv):
 		
 		if arg in ["--log"]:
@@ -93,6 +95,7 @@ def read_input( argv , future_logs ):
 			abort = True
 	
 	## Define the log
+	##===============
 	if kwargs["clog"]:
 		kwargs["log"] = "console"
 	if kwargs.get("log") is not None and not kwargs["log"] == "console":
@@ -110,10 +113,12 @@ def read_input( argv , future_logs ):
 			logs.write(log)
 	
 	## First abort
+	##============
 	if abort:
 		return kwargs,logs,abort
 	
 	## Control if required parameters are given
+	##=========================================
 	l_req = ["period","var","area","odir"]
 	l_giv = list( set(l_req) & set(kwargs) )
 	l_mis = [req for req in l_req if not req in l_giv]
@@ -123,8 +128,24 @@ def read_input( argv , future_logs ):
 		return kwargs,logs,abort
 	
 	## Control if required parameters are CORRECTLY given
+	##===================================================
 	
-	
+	## Area
+	if kwargs["area"] in CDSparams.available_area:
+		kwargs["area_name"] = kwargs["area"]
+		kwargs["area"]      = CDSparams.available_area[kwargs["area"]]
+	else:
+		try:
+			area = [float(x) for x in kwargs["area"].split(",")]
+			if not len(area) == 4:
+				raise ValueError
+			lon_min,lon_max,lat_min,lat_max = area
+			area_name = "box-{:,g}-{:,g}-{:,g}-{:,g}".format(lon_min+180,lon_max+180,lat_min,lat_max)
+			kwargs["area"]      = area
+			kwargs["area_name"] = area_name
+		except:
+			logs.write( "Error: 'area={}' not in the format lon_min,lon_max,lat_min,lat_max. Abort.".format(kwargs["area"]) )
+			abort = True
 	
 	return kwargs,logs,abort
 
