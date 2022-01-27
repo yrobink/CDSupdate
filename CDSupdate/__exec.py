@@ -62,7 +62,9 @@ def start_cdsupdate( argv ):
 	
 	## List of all input
 	logs.write("Input parameters")
-	for key in kwargs:
+	keys = [key for key in kwargs]
+	keys.sort()
+	for key in keys:
 		logs.write( "   * {:{fill}{align}{n}}".format( key , fill = " ",align = "<" , n = 10 ) + ": {}".format(kwargs[key]) )
 	logs.writeline()
 	
