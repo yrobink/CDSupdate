@@ -16,12 +16,23 @@
 ## You should have received a copy of the GNU General Public License
 ## along with CDSupdate.  If not, see <https://www.gnu.org/licenses/>.
 
+##############
+## Packages ##
+##############
+
+import os
+import datetime as dt
+
+
 #############
 ## Imports ##
 #############
 
-from .__logs import LogFile
-from .__CDSparams import CDSparams
+from .__logs       import LogFile
+from .__CDSparams  import CDSparams
+
+from .__exceptions import CDSInputPeriodSizeError
+from .__exceptions import CDSInputPeriodOrderError
 
 
 ###############
@@ -155,6 +166,34 @@ def read_input( argv , future_logs ):
 			logs.write( f"Error: variable '{var}' not available. Abort." )
 			abort = True
 	kwargs["var"] = l_vars
+	
+	## Period
+	try:
+		l_dates = [ dt.datetime.fromisoformat(date) for date in kwargs["period"].split("/") if len(date) > 0]
+		if len(l_dates) == 1:
+			l_dates.append( dt.datetime.utcnow() )
+		if len(l_dates) > 2:
+			raise CDSInputPeriodSizeError
+		if not l_dates[0] <= l_dates[1]:
+			raise CDSInputPeriodOrderError
+		kwargs["period"] = [ date.isoformat()[:10] for date in l_dates ] ## Keep only the day, all days will be downloaded
+	except ValueError:
+		logs.write( f"Error: dates of the period are not in the iso format. Abort." )
+		abort = True
+	except CDSInputPeriodSizeError:
+		logs.write( "Error: too many periods in the period input. Abort." )
+		abort = True
+	except CDSInputPeriodOrderError:
+		logs.write( "Error: in the period, the first date is greater than the second. Abort." )
+		abort = True
+	
+	## odir
+	try:
+		if not os.path.isdir(kwargs["odir"]):
+			raise NotADirectoryError
+	except NotADirectoryError:
+		logs.write( "Error: the output directory {} is not valid. Abort.".format(kwargs["odir"]) )
+		abort = True
 	
 	##
 	logs.writeline()
