@@ -27,10 +27,15 @@ from .__release import license_txt
 from .__release import src_url
 from .__release import authors_doc
 
+from .__CDSparams import CDSparams
 
 ###############
 ## Variables ##
 ###############
+
+area_description = "\n".join(
+["- {:{fill}{align}{n}}: ".format(f"'{area_name}'",fill="",align="<",n=16) + "{}".format(",".join([str(x) for x in CDSparams.available_area[area_name]])) for area_name in CDSparams.available_area]
+)
 
 doc = """\
 
@@ -67,13 +72,12 @@ About the variables
 -------------------
 - Original data being at hourly scale, use 'tas', 'tasmin' or 'tasmax'  as var
   updates the three.
-- Current variables supported: 'tas', 'tasmin' and 'tasmax'.
+- Current variables supported: {}.
 
 About the area
 --------------
 You can pass a box, or the following keywords:
-- 'world'  : all the world, equivalent to -180,180,-90,90
-- 'europe' : Europe with Copernicus defitinion, i.e. ...
+{}
 
 License {}
 {}
@@ -85,6 +89,8 @@ Sources   : {}
 Author(s) : {}
 """.format( version , "=" * (12+len(version)) ,
             long_description,
+            ", ".join([f"'{s}'" for s in CDSparams.available_vars]),
+            area_description,
             license , "-" * ( 8 + len(license) ) , license_txt ,
             src_url , authors_doc )
 
