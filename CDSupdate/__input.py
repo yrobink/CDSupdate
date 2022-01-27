@@ -147,6 +147,18 @@ def read_input( argv , future_logs ):
 			logs.write( "Error: 'area={}' not in the format lon_min,lon_max,lat_min,lat_max. Abort.".format(kwargs["area"]) )
 			abort = True
 	
+	## Variable
+	l_vars = kwargs["var"].split(",")
+	
+	for var in l_vars:
+		if var not in CDSparams.available_vars:
+			logs.write( f"Error: variable '{var}' not available. Abort." )
+			abort = True
+	kwargs["var"] = l_vars
+	
+	##
+	logs.writeline()
+	
 	return kwargs,logs,abort
 
 
