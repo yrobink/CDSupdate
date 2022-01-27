@@ -47,6 +47,7 @@ class LogFile:
 		"""
 		self._logf    = None
 		self._console = False
+		self._last_is_line = False
 		if logf is None:
 			return
 		
@@ -75,6 +76,7 @@ class LogFile:
 		elif self._logf is not None:
 			with open( self._logf , "a" ) as f:
 				f.write( log + end )
+		self._last_is_line = False
 	
 	def writeline( self , ch = "-" , size = 80 ):
 		"""
@@ -88,5 +90,7 @@ class LogFile:
 		size [int]
 			The size of the line, default is 80.
 		"""
-		self.write( ch * size )
+		if not self._last_is_line:
+			self.write( ch * size )
+			self._last_is_line = True
 
