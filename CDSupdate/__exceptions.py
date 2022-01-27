@@ -16,23 +16,12 @@
 ## You should have received a copy of the GNU General Public License
 ## along with CDSupdate.  If not, see <https://www.gnu.org/licenses/>.
 
-#############
-## Imports ##
-#############
+class CDSInputPeriodSizeError(Exception):
+	def __init__( self ):
+		super().__init__()
 
-from .__exec      import start_cdsupdate
-from .__input     import read_input
-from .__logs      import LogFile
-from .__doc       import doc
-from .__release   import version
-from .__CDSparams import CDSparams
+class CDSInputPeriodOrderError(Exception):
+	def __init__( self ):
+		super().__init__()
 
-from .__exceptions import CDSInputPeriodSizeError
-from .__exceptions import CDSInputPeriodOrderError
 
-###################
-## Set variables ##
-###################
-
-__version__ = version
-__doc__     = doc
