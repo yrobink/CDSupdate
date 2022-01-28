@@ -37,7 +37,80 @@ from .__input   import read_input
 ## Functions ##
 ###############
 
-def start_cdsupdate( argv ):
+class YearlyTask:##{{{
+	def __init__( self , year , t0 , t1 , t_break ):
+		
+		self.t_break = t_break
+		ty0 = dt.datetime( year ,  1 ,  1 )
+		ty1 = dt.datetime( year , 12 , 31 )
+		
+		if ty0 >= t0 and ty1 <= t1:
+			self.t0 = ty0
+			self.t1 = ty1
+		elif ty0 < t0 and ty1 <= t1:
+			self.t0 = t0
+			self.t1 = ty1
+		elif ty0 >= t0 and ty1 > t1:
+			self.t0 = ty0
+			self.t1 = t1
+		else:
+			self.t0 = t0
+			self.t1 = t1
+	
+	def start( self ):
+		if self.t1 < self.t_break:
+			print(f"Run between {self.t0} / {self.t1}")
+		elif self.t0 < self.t_break and self.t_break < self.t1:
+			print(f"Run between {self.t0} / {self.t_break}")
+			t = self.t_break + dt.timedelta(days=1)
+			while t <= self.t1:
+				print(f"Run {t}")
+				t += dt.timedelta(days=1)
+		else:
+			t = self.t0
+			while t <= self.t1:
+				print(f"Run {t}")
+				t += dt.timedelta(days=1)
+			
+	def __str__( self ):
+		return f"YearlyTask:: t0: {self.t0}, t1: {self.t1}, t_break: {self.t_break}"
+	
+	def __repr__( self ):
+		return self.__str__()
+##}}}
+
+def run_cdsupdate( logs , **kwargs ):##{{{
+	"""
+	CDSupdate.run_cdsupdate
+	=======================
+	
+	Main execution, after the control of user input.
+	
+	"""
+	
+	## Start by extract years from period, to split in yearly task
+	## Note: the last 30 days will be downloaded day by day
+	##============================================================
+	
+	## Split in yearly time, and find the break
+	t0 = dt.datetime.fromisoformat(kwargs["period"][0])
+	t1 = dt.datetime.fromisoformat(kwargs["period"][1])
+	year0 = t0.year
+	year1 = t1.year
+	
+	t_now   = dt.datetime.utcnow()
+	t_now   = dt.datetime( t_now.year , t_now.month , t_now.day )
+	t_break = t_now - dt.timedelta( days = 30 )
+	
+	## Build list of tasks
+	l_ytasks = [ YearlyTask( year , t0 , t1 , t_break ) for year in range(year0,year1+1,1) ]
+	
+	for ytask in l_ytasks:
+		print(ytask)
+		ytask.start()
+##}}}
+
+def start_cdsupdate( argv ):##{{{
 	"""
 	CDSupdate.start_cdsupdate
 	=========================
@@ -74,7 +147,7 @@ def start_cdsupdate( argv ):
 	
 	## Go!
 	if not abort:
-		pass
+		run_cdsupdate( logs , **kwargs )
 	
 	## End
 	cputime1  = systime.process_time()
@@ -83,3 +156,5 @@ def start_cdsupdate( argv ):
 	logs.write( "Wall time: {}".format(walltime1 - walltime0) )
 	logs.write( "CPU time : {}".format(dt.timedelta(seconds = cputime1 - cputime0)) )
 	logs.writeline()
+##}}}
+
