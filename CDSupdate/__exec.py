@@ -29,9 +29,9 @@ import time as systime
 ## Imports ##
 #############
 
-from .__release import version
-from .__doc     import doc
-from .__input   import read_input
+from .__release    import version
+from .__curses_doc import print_doc
+from .__input      import read_input
 
 ###############
 ## Functions ##
@@ -245,7 +245,7 @@ def start_cdsupdate( argv ):##{{{
 	
 	## User asks help
 	if kwargs["help"]:
-		print(doc)
+		print_doc()
 	
 	## Go!
 	if not abort:
