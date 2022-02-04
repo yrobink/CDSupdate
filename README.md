@@ -1,9 +1,26 @@
 # CDSupdate
 
-*Currently, CDSupdate doesn't work, in development (pre-pre-alpha version)!*
 
 CDSupdate is a tools to automatically download and update data from the Climate
 Data Store. Currently, only ERA5 is supported.
+
+## Current state
+
+### What is work
+
+- Area is read correctly from the input
+- Variables are read correctly from the input
+- Time period is read correctly from the input, and transformed to the format of `cdsapi` package
+- Log file works
+- Documentation work
+
+
+### What is not work
+
+- CDSupdate doesn't work (!!),
+- No download
+- No update
+
 
 ## Installation
 
@@ -30,10 +47,22 @@ python3 setup.py install --user
 ~~~
 
 This adds the `CDSupdate` package in your python installation, and the command
-`cdsupdate`. You can read the documentation with:
+`cdsupdate`.
+
+## How to use ?
+
+Start by read the documentation with:
 
 ~~~shell
 cdsupdate --help
+~~~
+
+As example, to download the daily mean temperature over the North Atlantic
+(80W-50E,5N,70N) between 2019-11-09 and 2022-01-17 in the directory `odir`,
+just run:
+
+~~~shell
+cdsupdate --log test.log --period 2019-11-09/2022-01-17 --var tas --area northatlantic --odir odir
 ~~~
 
 
