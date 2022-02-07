@@ -58,7 +58,7 @@ def build_yearly_CDSAPIParams( t0 , t1 = None , logs = None ):##{{{
 		      "day"   :  "{}".format(days[t0.day-1]),
 		      "time"  : hours
 		    }
-		return [p]
+		return [(p,t0,None)]
 	
 	## Case 2: all the year
 	if t0.month == 1 and t0.day == 1 and t1.month == 12 and t1.day == 31:
@@ -68,7 +68,7 @@ def build_yearly_CDSAPIParams( t0 , t1 = None , logs = None ):##{{{
 		      "day"   : days,
 		      "time"  : hours
 		    }
-		return [p]
+		return [(p,t0,t1)]
 	
 	## Case 3: all f*****g others cases
 	is_end_of_month = lambda t: ( t + dt.timedelta(days=1) ).day == 1
@@ -79,7 +79,7 @@ def build_yearly_CDSAPIParams( t0 , t1 = None , logs = None ):##{{{
 		      "day"   : days[(t0.day-1):t1.day], ##days[(t0.day-1):(t1.day-1+1)]
 		      "time"  : hours
 		    }
-		return [p]
+		return [(p,t0,t1)]
 	if t0.day == 1 and is_end_of_month(t1):
 		logs.write( f"   * {t0} / {t1}" )
 		p = { "year"  : f"{t0.year}" ,
@@ -87,7 +87,7 @@ def build_yearly_CDSAPIParams( t0 , t1 = None , logs = None ):##{{{
 		      "day"   : days,
 		      "time"  : hours
 		    }
-		return [p]
+		return [(p,t0,t1)]
 	elif t0.day == 1 and not is_end_of_month(t1): ## From here, t0.month < t1.month
 		t1mr = dt.datetime( t1.year , t1.month , 1 )
 		t1ml = t1mr - dt.timedelta(days=1)
@@ -106,8 +106,6 @@ def build_yearly_CDSAPIParams( t0 , t1 = None , logs = None ):##{{{
 		lp_l = build_yearly_CDSAPIParams( t0   , t1ml , logs )
 		lp_r = build_yearly_CDSAPIParams( t1mr , t1   , logs )
 		return lp_l + lp_r
-	
-	return []
 ##}}}
 
 def build_CDSAPIParams( period , logs ):##{{{
@@ -209,6 +207,7 @@ def run_cdsupdate( logs , **kwargs ):##{{{
 	## Note: the last 30 days will be downloaded day by day
 	##============================================================
 	l_CDSAPIParams = build_CDSAPIParams( kwargs["period"] , logs )
+	
 	
 ##}}}
 
