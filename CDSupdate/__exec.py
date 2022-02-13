@@ -194,6 +194,74 @@ def build_CDSAPIParams( period , logs ):##{{{
 	return l_CDSAPIParams
 ##}}}
 
+
+def load_data_cdsapi( l_CDSAPIParams , logs , **kwargs ):##{{{
+	
+	## TODO replace tmp var by a user defined path
+	## TODO add key url to optional user input
+	## TODO name_AMIP2ERA5 in independent function
+	## TODO ERA5 before after 1978
+	
+	
+	name_AMPI2ERA5 = { "tas" : "2m_temperature" }
+	name_ERA52AMIP = {}
+	for avar in name_AMPI2ERA5:
+		name_ERA52AMIP[name_AMPI2ERA5[avar]] = avar
+	
+	## cdsapi base params
+	name    = "reanalysis-era5-single-levels"
+	bparams = { "product_type" : "reanalysis",
+	           "format"        : "netcdf",
+	           "area"          : kwargs["area"]
+	           }
+	
+	## Build list of var
+	## => remove duplicated var (tas, tasmin and tasmax have the same effect)
+	l_var = kwargs["var"]
+	for v in ["tasmin","tasmax"]:
+		if v in l_var:
+			l_var[l_var.index(v)] = "tas"
+	l_var = list(set(l_var))
+	
+	## cdsapi client params
+	key = None
+	url = None
+	verify = None
+	
+	## Loop
+	for var in l_var:
+		logs.write( f"Download data '{var}'" )
+		for cap in l_CDSAPIParams:
+			
+			## Merge base params and time params
+			params = { **bparams , **cap[0] }
+			
+			## Add variable
+			params["variable"] = name_AMPI2ERA5[var]
+			
+			## Path out
+			pout = os.path.join( kwargs["odir"] , "tmp" , var )
+			if not os.path.isdir(pout):
+				os.makedirs(pout)
+			
+			# File out
+			t0 = str(cap[1])[:10].replace("-","") + "00"
+			if cap[2] is None:
+				t1 = t0[:-2] + "23"
+			else:
+				t1 = str(cap[2])[:10].replace("-","") + "23"
+			fout = f"ERA5_{var}_{kwargs['area_name']}_{t0}-{t1}.nc"
+			logs.write( f"   * Period {t0}/{t1}" )
+			
+			## Download
+			client = cdsapi.Client( key = key , url = url , verify = verify )
+			client.retrieve( name , params , os.path.join( pout , fout ) )
+	
+	logs.writeline()
+	
+##}}}
+
+
 def run_cdsupdate( logs , **kwargs ):##{{{
 	"""
 	CDSupdate.run_cdsupdate
@@ -208,6 +276,9 @@ def run_cdsupdate( logs , **kwargs ):##{{{
 	##============================================================
 	l_CDSAPIParams = build_CDSAPIParams( kwargs["period"] , logs )
 	
+	## Download data
+	##==============
+	load_data_cdsapi( l_CDSAPIParams , logs , **kwargs )
 	
 ##}}}
 
