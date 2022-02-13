@@ -26,6 +26,8 @@ import time as systime
 
 import cdsapi
 
+import numpy  as np
+import xarray as xr
 
 #############
 ## Imports ##
@@ -197,6 +199,24 @@ def build_CDSAPIParams( period , logs ):##{{{
 ##}}}
 
 
+def build_name_AMIP_ERA5():##{{{
+	name_AMPI2ERA5 = { "tas" : "t2m" }
+	name_ERA52AMIP = {}
+	for avar in name_AMPI2ERA5:
+		name_ERA52AMIP[name_AMPI2ERA5[avar]] = avar
+	
+	return name_AMPI2ERA5,name_ERA52AMIP
+##}}}
+
+def build_name_AMIP_CDSAPI():##{{{
+	name_AMPI2ERA5 = { "tas" : "2m_temperature" }
+	name_ERA52AMIP = {}
+	for avar in name_AMPI2ERA5:
+		name_ERA52AMIP[name_AMPI2ERA5[avar]] = avar
+	
+	return name_AMPI2ERA5,name_ERA52AMIP
+##}}}
+
 def load_data_cdsapi( l_CDSAPIParams , logs , **kwargs ):##{{{
 	
 	## TODO replace tmp var by a user defined path
@@ -204,11 +224,7 @@ def load_data_cdsapi( l_CDSAPIParams , logs , **kwargs ):##{{{
 	## TODO name_AMIP2ERA5 in independent function
 	## TODO ERA5 before after 1978
 	
-	
-	name_AMPI2ERA5 = { "tas" : "2m_temperature" }
-	name_ERA52AMIP = {}
-	for avar in name_AMPI2ERA5:
-		name_ERA52AMIP[name_AMPI2ERA5[avar]] = avar
+	name_AMPI2ERA5,name_ERA52AMIP = build_name_AMIP_CDSAPI()
 	
 	## Build area
 	lon_min,lon_max,lat_min,lat_max = kwargs["area"]
@@ -246,7 +262,7 @@ def load_data_cdsapi( l_CDSAPIParams , logs , **kwargs ):##{{{
 			params["variable"] = name_AMPI2ERA5[var]
 			
 			## Path out
-			pout = os.path.join( kwargs["odir"] , "tmp" , var )
+			pout = os.path.join( kwargs["odir"] , "tmp" , var , "hour" )
 			if not os.path.isdir(pout):
 				os.makedirs(pout)
 			
@@ -256,15 +272,264 @@ def load_data_cdsapi( l_CDSAPIParams , logs , **kwargs ):##{{{
 				t1 = t0[:-2] + "23"
 			else:
 				t1 = str(cap[2])[:10].replace("-","") + "23"
-			fout = f"ERA5_{var}_{kwargs['area_name']}_{t0}-{t1}.nc"
+			fout = f"ERA5_{var}_hour_{kwargs['area_name']}_{t0}-{t1}.nc"
 			logs.write( f"   * Period {t0}/{t1}" )
 			
 			## Download
-			client = cdsapi.Client( key = key , url = url , verify = verify )
-			client.retrieve( name , params , os.path.join( pout , fout ) )
+			try:
+				client = cdsapi.Client( key = key , url = url , verify = verify , quiet = True )
+				client.retrieve( name , params , os.path.join( pout , fout ) )
+			except Exception as e:
+				logs.write( f"      => Warning '{e}', data not used." )
+				## Data almost surely not available, but if the exception is due
+				## to another problems, it is prefereable to remove the file,
+				## cdsapi just raises a generic Exception, not a specific
+				## Exception
+				if os.path.isfile( os.path.join( pout , fout ) ):
+					os.remove( os.path.join( pout , fout ) )
 	
 	logs.writeline()
 	
+##}}}
+
+
+def build_attrs(var): ##{{{
+	
+	## Start with variables attributes
+	varattrs = {}
+#	varattrs["coordinates"]   = "lat lon"
+	
+	if var == "tas":
+		varattrs["standard_name"] = "air_temperature" ;
+		varattrs["long_name"]     = "Daily Mean Near-Surface Air Temperature" ;
+		varattrs["units"]         = "Kelvin"
+		varattrs["comment"]       = "Computed as hourly average"
+	if var == "tasmin":
+		varattrs["standard_name"] = "air_temperature" ;
+		varattrs["long_name"]     = "Daily Min Near-Surface Air Temperature" ;
+		varattrs["units"]         = "Kelvin"
+	if var == "tasmax":
+		varattrs["standard_name"] = "air_temperature" ;
+		varattrs["long_name"]     = "Daily Max Near-Surface Air Temperature" ;
+		varattrs["units"]         = "Kelvin"
+	if var == "huss":
+		varattrs["standard_name"] = "specific_humidity" ;
+		varattrs["long_name"]     = "Near Surface Specific Humidity" ;
+		varattrs["units"]         = "kg.kg-1"
+	if var == "rlds":
+		varattrs["standard_name"] = "surface_downwelling_longwave_flux_in_air" ;
+		varattrs["long_name"]     = "Surface Downwelling Longwave Radiation" ;
+		varattrs["units"]         = "W.m-2"
+	if var == "rsds":
+		varattrs["standard_name"] = "surface_downwelling_shortwave_flux_in_air" ;
+		varattrs["long_name"]     = "Surface Downwelling Shortwave Radiation" ;
+		varattrs["units"]         = "W.m-2"
+	if var == "sfcWind":
+		varattrs["standard_name"] = "wind_speed" ;
+		varattrs["long_name"]     = "Near-Surface Wind Speed" ;
+		varattrs["units"]         = "m.s-1"
+	if var == "pr":
+		varattrs["standard_name"] = "precipitation_flux" ;
+		varattrs["long_name"]     = "Liquid Precipitation Flux" ;
+		varattrs["units"]         = "kg.m-2.s-1"
+	if var == "prsn":
+		varattrs["standard_name"] = "snowfall_flux" ;
+		varattrs["long_name"]     = "Snowfall Flux" ;
+		varattrs["units"]         = "kg.m-2.s-1"
+	if var == "prtot":
+		varattrs["standard_name"] = "precipitation_flux" ;
+		varattrs["long_name"]     = "Total Precipitation Flux" ;
+		varattrs["units"]         = "kg.m-2.s-1"
+	if var == "ps":
+		varattrs["standard_name"] = "surface_air_pressure" ;
+		varattrs["long_name"]     = "Surface Air Pressure" ;
+		varattrs["units"]         = "Pa"
+	if var == "hurs":
+		varattrs["standard_name"] = "relative_humidity" ;
+		varattrs["long_name"]     = "Relative Humidity" ;
+		varattrs["units"]         = "%"
+	if var == "co2s":
+		varattrs["standard_name"] = "mass_concentration_of_carbon_dioxide_in_air" ;
+		varattrs["long_name"]     = "Near-Surface Mass Concentration of CO2" ;
+		varattrs["units"]         = "kg.m-3"
+	
+	## Coordinates attributes
+	timeattrs = {}
+	timeattrs["axis"]          = "T"
+	timeattrs["standard_name"] = "time"
+	timeattrs["long_name"]     = "time axis"
+	
+	latattrs = {}
+	latattrs["axis"]           = "y"
+	latattrs["long_name"]      = "latitude coordinate"
+	latattrs["standard_name"]  = "latitude"
+	latattrs["units"]          = "degrees_north"
+	
+	lonattrs = {}
+	lonattrs["axis"]           = "x"
+	lonattrs["long_name"]      = "longitude coordinate"
+	lonattrs["standard_name"]  = "longitude"
+	lonattrs["units"]          = "degrees_east"
+	
+	## Global attributes
+	attrs = {}
+	attrs["title"]         = "reanalysis-era5-single-levels"
+	attrs["Conventions"]   = "CF-1.6"
+	attrs["source"]        = "https://cds.climate.copernicus.eu/cdsapp#!/dataset/reanalysis-era5-single-levels?tab=overview"
+	attrs["contact"]       = "andreia.hisi@lsce.ipsl.fr, yoann.robin@lsce.ipsl.fr"
+	attrs["creation_date"] = str(dt.datetime.utcnow())[:19] + " (UTC)"
+	attrs["comment"]       = "The area in the file name is in the form 'lon_min+180'-'lon_max+180'-'lat_min'-'lat_max', i.e. the longitude lives in the range 0/360 to have only positive values. But the longitude coordinate lives in the range -180/180."
+	attrs["reference"]     = "Hersbach, H., Bell, B., Berrisford, P., Biavati, G., Horányi, A., Muñoz Sabater, J., Nicolas, J., Peubey, C., Radu, R., Rozum, I., Schepers, D., Simmons, A., Soci, C., Dee, D., Thépaut, J-N. (2018): ERA5 hourly data on single levels from 1979 to present. Copernicus Climate Change Service (C3S) Climate Data Store (CDS). (Accessed on {}), 10.24381/cds.adbb2d47".format(str(dt.datetime.utcnow())[:10])
+	return varattrs,timeattrs,latattrs,lonattrs,attrs
+##}}}
+
+def build_encoding( var , nlat , nlon ):##{{{
+	encoding = { "time" : { "dtype" : "int32"   , "zlib" : True , "complevel": 5 , "chunksizes" : (1,) , "units" : "days since 1850-01-01" } ,
+				 "lon"  : { "dtype" : "float32" , "zlib" : True , "complevel": 5 , "chunksizes" : (nlon,) } ,
+				 "lat"  : { "dtype" : "float32" , "zlib" : True , "complevel": 5 , "chunksizes" : (nlat,) } ,
+				 var    : { "dtype" : "float32" , "zlib" : True , "complevel": 5 , "chunksizes" : (1,nlat,nlon) } ,
+				}
+	
+	return encoding
+##}}}
+
+
+def transform_to_daily( avar , l_files , year , logs , **kwargs ):##{{{
+	
+	## dict to convert ERA5 / AMIP
+	name_AMPI2ERA5,name_ERA52AMIP = build_name_AMIP_ERA5()
+	evar = name_AMPI2ERA5[avar]
+	
+	## Load data
+	datai = xr.concat( [xr.load_dataset(f) for f in l_files] , dim = "time" )
+	
+	## First the time axis, check that the last day has the 24 hours
+	t_beg = str(datai.time[ 0].values)[:10]
+	t_end = str(datai.time[-1].values)[:10]
+	data_end = datai.sel( time = t_end )
+	t_beg = dt.datetime.fromisoformat(t_beg)
+	t_end = dt.datetime.fromisoformat(t_end)
+	if data_end.time.size < 24:
+		t_end = t_end - dt.timedelta( days = 1 )
+	if t_end < t_beg:
+		return
+	datai = datai.sel( time = slice(t_beg,t_end) )
+	
+	## Transform in daily data
+	if avar in ["tas"]:
+		data = datai.groupby("time.dayofyear").mean()
+	
+	## Build the time axis
+	time = [dt.datetime(year,1,1) + dt.timedelta( days = int(i) - 1 ) for i in data["dayofyear"].values]
+	
+	## Build latitude / longitude
+	lat     = datai.latitude.values
+	lon     = datai.longitude.values
+	argslat = np.argsort(lat)
+	argslon = np.argsort(lon)
+	lat     = lat[argslat].copy()
+	lon     = lon[argslon].copy()
+	
+	## Extract array, and change axis order
+	arr = data[evar].values[:,argslat,:][:,:,argslon].copy()
+	
+	## Back to xarray
+	xarr = xr.DataArray( arr , dims = ["time","lat","lon"] , coords = [time,lat,lon] )
+	
+	## To dataset
+	dxarr = xr.Dataset( { avar : xarr } )
+	
+	## Attributes
+	varattrs,timeattrs,latattrs,lonattrs,attrs = build_attrs(avar)
+	dxarr[avar].attrs = varattrs
+	dxarr.time.attrs = timeattrs
+	dxarr.lat.attrs  = latattrs
+	dxarr.lon.attrs  = lonattrs
+	dxarr.attrs      = attrs
+	
+	## Save
+	pout = os.path.join( kwargs["odir"] , "tmp" , avar , "day" )
+	if not os.path.isdir(pout):
+		os.makedirs(pout)
+	t0   = str(time[ 0])[:10].replace("-","")
+	t1   = str(time[-1])[:10].replace("-","")
+	fout = f"ERA5_{avar}_day_{kwargs['area_name']}_{t0}-{t1}.nc"
+	encoding = build_encoding( avar , lat.size , lon.size )
+	dxarr.to_netcdf( os.path.join( pout , fout ) , encoding = encoding )
+	
+	if not avar == "tas":
+		return
+	
+	## Specific case: tasmin / tasmax
+	datan = datai.groupby("time.dayofyear").min()
+	datax = datai.groupby("time.dayofyear").max()
+	
+	arrn = datan[evar].values[:,argslat,:][:,:,argslon].copy()
+	arrx = datax[evar].values[:,argslat,:][:,:,argslon].copy()
+	
+	xarrn = xr.DataArray( arrn , dims = ["time","lat","lon"] , coords = [time,lat,lon] )
+	xarrx = xr.DataArray( arrx , dims = ["time","lat","lon"] , coords = [time,lat,lon] )
+	
+	dxarrn = xr.Dataset( { avar + "min" : xarrn } )
+	dxarrx = xr.Dataset( { avar + "max" : xarrx } )
+	
+	varattrs,timeattrs,latattrs,lonattrs,attrs = build_attrs(avar + "min")
+	dxarrn[avar + "min"].attrs = varattrs
+	dxarrn.time.attrs = timeattrs
+	dxarrn.lat.attrs  = latattrs
+	dxarrn.lon.attrs  = lonattrs
+	dxarrn.attrs      = attrs
+	
+	varattrs,timeattrs,latattrs,lonattrs,attrs = build_attrs(avar + "max")
+	dxarrx[avar + "max"].attrs = varattrs
+	dxarrx.time.attrs = timeattrs
+	dxarrx.lat.attrs  = latattrs
+	dxarrx.lon.attrs  = lonattrs
+	dxarrx.attrs      = attrs
+	
+	pout = os.path.join( kwargs["odir"] , "tmp" , avar + "min" , "day" )
+	if not os.path.isdir(pout): os.makedirs(pout)
+	fout = f"ERA5_{avar}min_day_{kwargs['area_name']}_{t0}-{t1}.nc"
+	encoding = build_encoding( avar + "min" , lat.size , lon.size )
+	dxarrn.to_netcdf( os.path.join( pout , fout ) , encoding = encoding )
+	
+	pout = os.path.join( kwargs["odir"] , "tmp" , avar + "max" , "day" )
+	if not os.path.isdir(pout): os.makedirs(pout)
+	fout = f"ERA5_{avar}max_day_{kwargs['area_name']}_{t0}-{t1}.nc"
+	encoding = build_encoding( avar + "max" , lat.size , lon.size )
+	dxarrx.to_netcdf( os.path.join( pout , fout ) , encoding = encoding )
+	
+##}}}
+
+def transform_data_format( logs , **kwargs ):##{{{
+	
+	## Build list of var
+	## => remove duplicated var (tas, tasmin and tasmax have the same effect)
+	l_var = kwargs["var"]
+	for v in ["tasmin","tasmax"]:
+		if v in l_var:
+			l_var[l_var.index(v)] = "tas"
+	l_var = list(set(l_var))
+	
+	for var in l_var:
+		## Path out
+		pout = os.path.join( kwargs["odir"] , "tmp" , var , "hour" )
+		
+		## List of files
+		l_files = [ os.path.join( pout , f ) for f in os.listdir(pout) ]
+		l_files.sort()
+		
+		## Split in years
+		d_files = {}
+		for f in l_files:
+			y = f.split("_")[-1][:4]
+			if y not in d_files:
+				d_files[y] = []
+			d_files[y].append(f)
+		
+		## Now loop on years
+		for y in d_files:
+			transform_to_daily( var , d_files[y] , int(y) , logs , **kwargs )
 ##}}}
 
 
@@ -284,7 +549,12 @@ def run_cdsupdate( logs , **kwargs ):##{{{
 	
 	## Download data
 	##==============
-	load_data_cdsapi( l_CDSAPIParams , logs , **kwargs )
+#	load_data_cdsapi( l_CDSAPIParams , logs , **kwargs )
+	
+	## Change data format
+	##===================
+	transform_data_format( logs , **kwargs )
+	
 	
 ##}}}
 
