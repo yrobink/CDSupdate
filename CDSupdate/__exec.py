@@ -24,6 +24,8 @@ import sys,os
 import datetime as dt
 import time as systime
 
+import cdsapi
+
 
 #############
 ## Imports ##
@@ -208,11 +210,15 @@ def load_data_cdsapi( l_CDSAPIParams , logs , **kwargs ):##{{{
 	for avar in name_AMPI2ERA5:
 		name_ERA52AMIP[name_AMPI2ERA5[avar]] = avar
 	
+	## Build area
+	lon_min,lon_max,lat_min,lat_max = kwargs["area"]
+	area = [lat_max,lon_min,lat_min,lon_max]
+	
 	## cdsapi base params
 	name    = "reanalysis-era5-single-levels"
 	bparams = { "product_type" : "reanalysis",
 	           "format"        : "netcdf",
-	           "area"          : kwargs["area"]
+	           "area"          : area
 	           }
 	
 	## Build list of var
