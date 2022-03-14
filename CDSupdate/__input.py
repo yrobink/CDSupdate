@@ -22,6 +22,8 @@
 
 import os
 import datetime as dt
+import random
+import string
 
 
 #############
@@ -100,6 +102,12 @@ def read_input( argv , future_logs ):
 				kwargs["odir"] = argv[i+1]
 			except:
 				future_logs.append("Parameter '--odir' is used without output directory, abort.")
+				abort = True
+		if arg in ["--tmpdir"]:
+			try:
+				kwargs["tmp"] = argv[i+1]
+			except:
+				future_logs.append("Parameter '--tmpdir' is used without output directory, abort.")
 				abort = True
 		if arg in ["--help"]:
 			kwargs["help"] = True
@@ -194,6 +202,23 @@ def read_input( argv , future_logs ):
 	except NotADirectoryError:
 		logs.write( "Error: the output directory {} is not valid. Abort.".format(kwargs["odir"]) )
 		abort = True
+	
+	
+	try:
+		if kwargs.get("tmp") is not None and not os.path.isdir(kwargs["tmp"]):
+			raise NotADirectoryError
+		if kwargs.get("tmp") is None:
+			tmp = os.path.join( os.environ["WORKDIR"] , "JOB_CDSupdate_" + "".join( random.choices( string.ascii_uppercase + string.digits , k = 30 ) ) )
+			os.makedirs(tmp)
+			kwargs["tmp"] = tmp
+			
+	except NotADirectoryError:
+		logs.write( "Error: the temporary directory {} is not valid. Abort.".format(kwargs["tmp"]) )
+		abort = True
+	except KeyError:
+		logs.write( f"Error: the input '--tmpdir' and the environment variable 'WORKDIR' are not set simultaneously. Abort." )
+		abort = True
+	
 	
 	##
 	logs.writeline()

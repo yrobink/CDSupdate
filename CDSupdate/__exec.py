@@ -262,7 +262,7 @@ def load_data_cdsapi( l_CDSAPIParams , logs , **kwargs ):##{{{
 			params["variable"] = name_AMPI2ERA5[var]
 			
 			## Path out
-			pout = os.path.join( kwargs["odir"] , "tmp" , var , "hour" )
+			pout = os.path.join( kwargs["tmp"] , var , "hour" )
 			if not os.path.isdir(pout):
 				os.makedirs(pout)
 			
@@ -448,7 +448,7 @@ def transform_to_daily( avar , l_files , year , logs , **kwargs ):##{{{
 	dxarr.attrs      = attrs
 	
 	## Save
-	pout = os.path.join( kwargs["odir"] , "tmp" , avar , "day" )
+	pout = os.path.join( kwargs["tmp"] , avar , "day" )
 	if not os.path.isdir(pout):
 		os.makedirs(pout)
 	t0   = str(time[ 0])[:10].replace("-","")
@@ -487,13 +487,13 @@ def transform_to_daily( avar , l_files , year , logs , **kwargs ):##{{{
 	dxarrx.lon.attrs  = lonattrs
 	dxarrx.attrs      = attrs
 	
-	pout = os.path.join( kwargs["odir"] , "tmp" , avar + "min" , "day" )
+	pout = os.path.join( kwargs["tmp"] , avar + "min" , "day" )
 	if not os.path.isdir(pout): os.makedirs(pout)
 	fout = f"ERA5_{avar}min_day_{kwargs['area_name']}_{t0}-{t1}.nc"
 	encoding = build_encoding( avar + "min" , lat.size , lon.size )
 	dxarrn.to_netcdf( os.path.join( pout , fout ) , encoding = encoding )
 	
-	pout = os.path.join( kwargs["odir"] , "tmp" , avar + "max" , "day" )
+	pout = os.path.join( kwargs["tmp"] , avar + "max" , "day" )
 	if not os.path.isdir(pout): os.makedirs(pout)
 	fout = f"ERA5_{avar}max_day_{kwargs['area_name']}_{t0}-{t1}.nc"
 	encoding = build_encoding( avar + "max" , lat.size , lon.size )
@@ -512,11 +512,12 @@ def transform_data_format( logs , **kwargs ):##{{{
 	l_var = list(set(l_var))
 	
 	for var in l_var:
-		## Path out
-		pout = os.path.join( kwargs["odir"] , "tmp" , var , "hour" )
+		logs.write( f"Build daily {var}" )
+		## Path in
+		pin = os.path.join( kwargs["tmp"] , var , "hour" )
 		
 		## List of files
-		l_files = [ os.path.join( pout , f ) for f in os.listdir(pout) ]
+		l_files = [ os.path.join( pin , f ) for f in os.listdir(pin) ]
 		l_files.sort()
 		
 		## Split in years
@@ -530,6 +531,8 @@ def transform_data_format( logs , **kwargs ):##{{{
 		## Now loop on years
 		for y in d_files:
 			transform_to_daily( var , d_files[y] , int(y) , logs , **kwargs )
+			logs.write( f"   * '{y}'" )
+	logs.writeline()
 ##}}}
 
 
