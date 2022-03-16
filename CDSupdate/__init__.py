@@ -30,6 +30,19 @@ from .__CDSparams import CDSparams
 from .__exceptions import CDSInputPeriodSizeError
 from .__exceptions import CDSInputPeriodOrderError
 
+from .__download import build_yearly_CDSAPIParams
+from .__download import build_CDSAPIParams
+from .__download import build_name_AMIP_ERA5
+from .__download import build_name_AMIP_CDSAPI
+from .__download import load_data_cdsapi
+
+from .__convert import build_attrs
+from .__convert import build_encoding_daily
+from .__convert import build_encoding_hourly
+from .__convert import transform_to_daily
+from .__convert import transform_to_hourly
+from .__convert import transform_data_format
+
 ###################
 ## Set variables ##
 ###################

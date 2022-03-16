@@ -57,12 +57,14 @@ Input parameters
     List of variables to download/update.
 --area xmin,xmax,ymin,ymax
     Area, can be a grid, or a keyword, see area section.
+--keephourly
+    Keep also hourly data
 --odir output_directory
     Output directory.
 --tmpdir temporary_directory
-	Temporary directory used to download data before formatting. If not given, a
-	random folder is built in the directory given by the environement variable
-	'$WORKDIR'. Raise an error if not given and '$WORKDIR' is not set.
+    Temporary directory used to download data before formatting. If not given, a
+    random folder is built in the directory given by the environement variable
+    '$WORKDIR'. Raise an error if not given and '$WORKDIR' is not set.
 --help
     Print the documentation.
 --origin

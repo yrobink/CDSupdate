@@ -65,7 +65,7 @@ def read_input( argv , future_logs ):
 		False if all inputs are valid, True otherwise.
 	"""
 	abort  = False
-	kwargs = { "clog": False , "help" : False }
+	kwargs = { "clog" : False , "keep_hourly" : False , "help" : False }
 	
 	## Start by read input parameters
 	##===============================
@@ -109,6 +109,8 @@ def read_input( argv , future_logs ):
 			except:
 				future_logs.append("Parameter '--tmpdir' is used without output directory, abort.")
 				abort = True
+		if arg in ["--keephourly"]:
+			kwargs["keep_hourly"] = True
 		if arg in ["--help"]:
 			kwargs["help"] = True
 			abort = True
