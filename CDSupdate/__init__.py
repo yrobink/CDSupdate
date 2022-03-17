@@ -36,7 +36,8 @@ from .__download import build_name_AMIP_ERA5
 from .__download import build_name_AMIP_CDSAPI
 from .__download import load_data_cdsapi
 
-from .__convert import build_attrs
+from .__convert import build_attrs_daily
+from .__convert import build_attrs_hourly
 from .__convert import build_encoding_daily
 from .__convert import build_encoding_hourly
 from .__convert import transform_to_daily

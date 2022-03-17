@@ -47,6 +47,59 @@ from .__convert import transform_data_format
 ## Functions ##
 ###############
 
+def merge_with_current_daily( logs , **kwargs ):##{{{
+	## Build list of var
+	## If tas, tasmin or tasmax in var, add the three
+	l_var = kwargs["var"]
+	if "tas" in l_var or "tasmin" in l_var or "tasmax" in l_var:
+		l_var = l_var + ["tas","tasmin","tasmax"]
+	l_var = list(set(l_var))
+	
+	for var in l_var:
+		logs.write( f"Merge daily {var}" )
+		
+		## Path in
+		pin = os.path.join( kwargs["tmp"] , var , "day" )
+		
+		## Path out
+		pout = os.path.join( kwargs["odir"] , var , "day" )
+		if not os.path.isdir(pout): os.makedirs(pout)
+		
+		## List of input files
+		l_ifiles = [ os.path.join( pin , f ) for f in os.listdir(pin) ]
+		l_ifiles.sort()
+		
+		## Split input in years
+		d_ifiles = {}
+		for f in l_ifiles:
+			y = f.split("_")[-1][:4]
+			d_ifiles[y] = f
+		
+		## List of current files
+		l_cfiles = [ os.path.join( pout , f ) for f in os.listdir(pout) ]
+		l_cfiles.sort()
+		
+		## Split current in years
+		d_cfiles = {}
+		for f in l_cfiles:
+			y = f.split("_")[-1][:4]
+			d_cfiles[y] = f
+		
+		## Now loop on years
+		for y in d_ifiles:
+			logs.write( f"   * '{y}'" )
+			if y not in d_cfiles:
+				os.system( f"cp {d_ifiles[y]} {pout}" )
+			
+	logs.writeline()
+
+##}}}
+
+def merge_with_current( logs , **kwargs ):##{{{
+	merge_with_current_daily( logs , **kwargs )
+##}}}
+
+
 def run_cdsupdate( logs , **kwargs ):##{{{
 	"""
 	CDSupdate.run_cdsupdate
@@ -67,10 +120,11 @@ def run_cdsupdate( logs , **kwargs ):##{{{
 	
 	## Change data format
 	##===================
-	transform_data_format( logs , **kwargs )
+#	transform_data_format( logs , **kwargs )
 	
 	## And now merge with current data
 	##================================
+	merge_with_current( logs , **kwargs )
 	
 ##}}}
 
