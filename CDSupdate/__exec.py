@@ -41,6 +41,7 @@ from .__download import build_CDSAPIParams
 from .__download import load_data_cdsapi
 
 from .__convert import transform_data_format
+from .__convert import build_encoding_daily
 
 
 ###############
@@ -85,11 +86,44 @@ def merge_with_current_daily( logs , **kwargs ):##{{{
 			y = f.split("_")[-1][:4]
 			d_cfiles[y] = f
 		
+		
 		## Now loop on years
 		for y in d_ifiles:
 			logs.write( f"   * '{y}'" )
+			
+			## Case 1: no values for the year y
 			if y not in d_cfiles:
+				logs.write( f"     Case 1: no values for the year {y}" )
 				os.system( f"cp {d_ifiles[y]} {pout}" )
+				continue
+			
+			## Load data
+			idata = xr.open_dataset(d_ifiles[y])
+			cdata = xr.open_dataset(d_cfiles[y])
+			
+			## Time axis
+			itime = [ str(x)[:10] for x in idata.time.values ]
+			ctime = [ str(x)[:10] for x in cdata.time.values ]
+			
+			## Time in ctime not in itime
+			ntime = [ s for s in ctime if s not in itime ]
+			
+			## Case 2: all values must be updated
+			if len(ntime) == 0:
+				logs.write( f"     Case 2: all values must be updated" )
+				os.remove(d_cfiles[y])
+				os.system( f"cp {d_ifiles[y]} {pout}" )
+				continue
+			
+			## Case 3: a sub part must be updated
+			logs.write( f"     Case 3: a sub part must be updated" )
+			odata = xr.concat( (idata,cdata.sel( time = ntime)) , dim = "time" , data_vars = "minimal" ).sortby("time")
+			os.remove(d_cfiles[y])
+			encoding = build_encoding_daily( var , odata.lat.size , odata.lon.size )
+			t0   = str(odata.time.values[ 0])[:10].replace("-","")
+			t1   = str(odata.time.values[-1])[:10].replace("-","")
+			fout = f"ERA5_{var}_day_{kwargs['area_name']}_{t0}-{t1}.nc"
+			odata.to_netcdf( os.path.join( pout , fout ) , encoding = encoding )
 			
 	logs.writeline()
 
