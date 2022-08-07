@@ -19,19 +19,15 @@
 import os
 
 ## Start by import release details
-from CDSupdate.__release import name
-from CDSupdate.__release import version
-from CDSupdate.__release import description
-from CDSupdate.__release import long_description
-from CDSupdate.__release import authors
-from CDSupdate.__release import authors_email
-from CDSupdate.__release import src_url
-from CDSupdate.__release import license
+cpath = os.path.dirname(os.path.abspath(__file__)) ## current-path
+with open( os.path.join( cpath , "CDSupdate" , "__release.py" ) , "r" ) as f:
+	lines = f.readlines()
+exec("".join(lines))
 
 ## Required elements
 author           = ", ".join(authors)
 author_email     = ", ".join(authors_email)
-package_dir      = { "Explore2" : "Explore2" }
+package_dir      = { "CDSupdate" : os.path.join( cpath , "CDSupdate" ) }
 requires         = [ "numpy" , "scipy" , "xarray" , "netCDF4" , "cftime" , "cdsapi" ]
 scripts          = ["scripts/cdsupdate"]
 keywords         = ["Climate Data Store","Auto update"]
