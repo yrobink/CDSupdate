@@ -88,6 +88,10 @@ def build_attrs_daily(var): ##{{{
 		varattrs["standard_name"] = "surface_air_pressure" ;
 		varattrs["long_name"]     = "Surface Air Pressure" ;
 		varattrs["units"]         = "Pa"
+	if var == "psl":
+		varattrs["standard_name"] = "air_pressure_at_sea_level" ;
+		varattrs["long_name"]     = "Sea Level Pressure" ;
+		varattrs["units"]         = "Pa"
 	if var == "hurs":
 		varattrs["standard_name"] = "relative_humidity" ;
 		varattrs["long_name"]     = "Relative Humidity" ;
@@ -168,6 +172,10 @@ def build_attrs_hourly(var): ##{{{
 	if var == "ps":
 		varattrs["standard_name"] = "surface_air_pressure" ;
 		varattrs["long_name"]     = "Surface Air Pressure" ;
+		varattrs["units"]         = "Pa"
+	if var == "psl":
+		varattrs["standard_name"] = "air_pressure_at_sea_level" ;
+		varattrs["long_name"]     = "Sea Level Pressure" ;
 		varattrs["units"]         = "Pa"
 	if var == "hurs":
 		varattrs["standard_name"] = "relative_humidity" ;
@@ -252,9 +260,9 @@ def transform_to_daily( avar , l_files , year , logs , **kwargs ):##{{{
 	datai = datai.sel( time = slice(t_beg,t_end) )
 	
 	## Transform in daily data
-	if avar in ["tas"]:
-		data = datai.groupby("time.dayofyear").mean()
-	if avar in ["prtot"]:
+	if avar in []:
+		data = datai.groupby("time.dayofyear").sum()
+	else:
 		data = datai.groupby("time.dayofyear").mean()
 	
 	## Build the time axis

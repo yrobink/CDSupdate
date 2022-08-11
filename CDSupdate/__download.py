@@ -196,7 +196,7 @@ def build_CDSAPIParams( period , logs ):##{{{
 
 
 def build_name_AMIP_ERA5():##{{{
-	name_AMPI2ERA5 = { "tas" : "t2m" , "prtot" : "mtpr" }
+	name_AMPI2ERA5 = { "tas" : "t2m" , "prtot" : "mtpr" , "psl" : "msl" }
 	name_ERA52AMIP = {}
 	for avar in name_AMPI2ERA5:
 		name_ERA52AMIP[name_AMPI2ERA5[avar]] = avar
@@ -205,7 +205,7 @@ def build_name_AMIP_ERA5():##{{{
 ##}}}
 
 def build_name_AMIP_CDSAPI():##{{{
-	name_AMPI2ERA5 = { "tas" : "2m_temperature" , "prtot" : "mean_total_precipitation_rate" }
+	name_AMPI2ERA5 = { "tas" : "2m_temperature" , "prtot" : "mean_total_precipitation_rate" , "psl" : "mean_sea_level_pressure" }
 	name_ERA52AMIP = {}
 	for avar in name_AMPI2ERA5:
 		name_ERA52AMIP[name_AMPI2ERA5[avar]] = avar
