@@ -196,7 +196,7 @@ def build_CDSAPIParams( period , logs ):##{{{
 
 
 def build_name_AMIP_ERA5():##{{{
-	name_AMPI2ERA5 = { "tas" : "t2m" }
+	name_AMPI2ERA5 = { "tas" : "t2m" , "prtot" : "mtpr" }
 	name_ERA52AMIP = {}
 	for avar in name_AMPI2ERA5:
 		name_ERA52AMIP[name_AMPI2ERA5[avar]] = avar
@@ -205,7 +205,7 @@ def build_name_AMIP_ERA5():##{{{
 ##}}}
 
 def build_name_AMIP_CDSAPI():##{{{
-	name_AMPI2ERA5 = { "tas" : "2m_temperature" }
+	name_AMPI2ERA5 = { "tas" : "2m_temperature" , "prtot" : "mean_total_precipitation_rate" }
 	name_ERA52AMIP = {}
 	for avar in name_AMPI2ERA5:
 		name_ERA52AMIP[name_AMPI2ERA5[avar]] = avar
@@ -215,10 +215,8 @@ def build_name_AMIP_CDSAPI():##{{{
 
 def load_data_cdsapi( l_CDSAPIParams , logs , **kwargs ):##{{{
 	
-	## TODO replace tmp var by a user defined path
 	## TODO add key url to optional user input
 	## TODO name_AMIP2ERA5 in independent function
-	## TODO ERA5 before after 1978
 	
 	name_AMPI2ERA5,name_ERA52AMIP = build_name_AMIP_CDSAPI()
 	
@@ -251,6 +249,11 @@ def load_data_cdsapi( l_CDSAPIParams , logs , **kwargs ):##{{{
 		logs.write( f"Download data '{var}'" )
 		for cap in l_CDSAPIParams:
 			
+			if cap[1].year < 1959:
+				name = "reanalysis-era5-single-levels-preliminary-back-extension"
+			else:
+				name = "reanalysis-era5-single-levels"
+			
 			## Merge base params and time params
 			params = { **bparams , **cap[0] }
 			
@@ -258,7 +261,7 @@ def load_data_cdsapi( l_CDSAPIParams , logs , **kwargs ):##{{{
 			params["variable"] = name_AMPI2ERA5[var]
 			
 			## Path out
-			pout = os.path.join( kwargs["tmp"] , var , "hourERA5" )
+			pout = os.path.join( kwargs["tmp"] , "hourERA5" , var )
 			if not os.path.isdir(pout):
 				os.makedirs(pout)
 			

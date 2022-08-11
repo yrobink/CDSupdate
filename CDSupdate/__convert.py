@@ -210,9 +210,9 @@ def build_attrs_hourly(var): ##{{{
 
 
 def build_encoding_daily( var , nlat , nlon ):##{{{
-	encoding = { "time" : { "dtype" : "int32"   , "zlib" : True , "complevel": 5 , "chunksizes" : (1,) , "units" : "days since 1850-01-01" } ,
-				 "lon"  : { "dtype" : "float32" , "zlib" : True , "complevel": 5 , "chunksizes" : (nlon,) } ,
-				 "lat"  : { "dtype" : "float32" , "zlib" : True , "complevel": 5 , "chunksizes" : (nlat,) } ,
+	encoding = { "time" : { "dtype" : "double"  , "zlib" : True , "complevel": 5 , "chunksizes" : (1,) , "units" : "days since 1850-01-01" } ,
+				 "lon"  : { "dtype" : "double"  , "zlib" : True , "complevel": 5 , "chunksizes" : (nlon,) } ,
+				 "lat"  : { "dtype" : "double"  , "zlib" : True , "complevel": 5 , "chunksizes" : (nlat,) } ,
 				 var    : { "dtype" : "float32" , "zlib" : True , "complevel": 5 , "chunksizes" : (1,nlat,nlon) } ,
 				}
 	
@@ -220,9 +220,9 @@ def build_encoding_daily( var , nlat , nlon ):##{{{
 ##}}}
 
 def build_encoding_hourly( var , nlat , nlon ):##{{{
-	encoding = { "time" : { "dtype" : "int32"   , "zlib" : True , "complevel": 5 , "chunksizes" : (1,) , "units" : "hours since 1850-01-01" } ,
-				 "lon"  : { "dtype" : "float32" , "zlib" : True , "complevel": 5 , "chunksizes" : (nlon,) } ,
-				 "lat"  : { "dtype" : "float32" , "zlib" : True , "complevel": 5 , "chunksizes" : (nlat,) } ,
+	encoding = { "time" : { "dtype" : "double"  , "zlib" : True , "complevel": 5 , "chunksizes" : (1,) , "units" : "hours since 1850-01-01" } ,
+				 "lon"  : { "dtype" : "double"  , "zlib" : True , "complevel": 5 , "chunksizes" : (nlon,) } ,
+				 "lat"  : { "dtype" : "double"  , "zlib" : True , "complevel": 5 , "chunksizes" : (nlat,) } ,
 				 var    : { "dtype" : "float32" , "zlib" : True , "complevel": 5 , "chunksizes" : (1,nlat,nlon) } ,
 				}
 	
@@ -253,6 +253,8 @@ def transform_to_daily( avar , l_files , year , logs , **kwargs ):##{{{
 	
 	## Transform in daily data
 	if avar in ["tas"]:
+		data = datai.groupby("time.dayofyear").mean()
+	if avar in ["prtot"]:
 		data = datai.groupby("time.dayofyear").mean()
 	
 	## Build the time axis
@@ -285,7 +287,7 @@ def transform_to_daily( avar , l_files , year , logs , **kwargs ):##{{{
 	if not kwargs["area_name"][:3] == "box": del dxarr.attrs["comment_area"]
 	
 	## Save
-	pout = os.path.join( kwargs["tmp"] , avar , "day" )
+	pout = os.path.join( kwargs["tmp"] , "day" , avar )
 	if not os.path.isdir(pout):
 		os.makedirs(pout)
 	t0   = str(time[ 0])[:10].replace("-","")
@@ -326,13 +328,13 @@ def transform_to_daily( avar , l_files , year , logs , **kwargs ):##{{{
 	dxarrx.attrs      = attrs
 	if not kwargs["area_name"][:3] == "box": del dxarrx.attrs["comment_area"]
 	
-	pout = os.path.join( kwargs["tmp"] , avar + "min" , "day" )
+	pout = os.path.join( kwargs["tmp"] , "day" , avar + "min" )
 	if not os.path.isdir(pout): os.makedirs(pout)
 	fout = f"ERA5_{avar}min_day_{kwargs['area_name']}_{t0}-{t1}.nc"
 	encoding = build_encoding_daily( avar + "min" , lat.size , lon.size )
 	dxarrn.to_netcdf( os.path.join( pout , fout ) , encoding = encoding )
 	
-	pout = os.path.join( kwargs["tmp"] , avar + "max" , "day" )
+	pout = os.path.join( kwargs["tmp"] , "day" , avar + "max" )
 	if not os.path.isdir(pout): os.makedirs(pout)
 	fout = f"ERA5_{avar}max_day_{kwargs['area_name']}_{t0}-{t1}.nc"
 	encoding = build_encoding_daily( avar + "max" , lat.size , lon.size )
@@ -391,7 +393,7 @@ def transform_to_hourly( avar , l_files , year , logs , **kwargs ):##{{{
 	if not kwargs["area_name"][:3] == "box": del dxarr.attrs["comment_area"]
 	
 	## Save
-	pout = os.path.join( kwargs["tmp"] , avar , "hour" )
+	pout = os.path.join( kwargs["tmp"] , "hour" , avar )
 	if not os.path.isdir(pout):
 		os.makedirs(pout)
 	t0   = str(time[ 0].values)[:10].replace("-","") + "00"
@@ -417,7 +419,7 @@ def transform_data_format( logs , **kwargs ):##{{{
 	for var in l_var:
 		logs.write( f"Build daily{lhourly} {var}" )
 		## Path in
-		pin = os.path.join( kwargs["tmp"] , var , "hourERA5" )
+		pin = os.path.join( kwargs["tmp"] , "hourERA5" , var )
 		
 		## List of files
 		l_files = [ os.path.join( pin , f ) for f in os.listdir(pin) ]

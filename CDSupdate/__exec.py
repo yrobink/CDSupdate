@@ -60,10 +60,10 @@ def merge_with_current_daily( logs , **kwargs ):##{{{
 		logs.write( f"Merge daily {var}" )
 		
 		## Path in
-		pin = os.path.join( kwargs["tmp"] , var , "day" )
+		pin = os.path.join( kwargs["tmp"] , "day" , var )
 		
 		## Path out
-		pout = os.path.join( kwargs["odir"] , var , "day" )
+		pout = os.path.join( kwargs["odir"] , "day" , var )
 		if not os.path.isdir(pout): os.makedirs(pout)
 		
 		## List of input files
@@ -129,8 +129,98 @@ def merge_with_current_daily( logs , **kwargs ):##{{{
 
 ##}}}
 
+def merge_with_current_hourly( logs , **kwargs ):##{{{
+	## Build list of var
+	## If tas, tasmin or tasmax in var, add the three
+	l_var = kwargs["var"]
+	l_var = list(set(l_var))
+	
+	for var in l_var:
+		logs.write( f"Merge hourly {var}" )
+		
+		## Path in
+		pin = os.path.join( kwargs["tmp"] , "hour" , var )
+		
+		## Path out
+		pout = os.path.join( kwargs["odir"] , "hour" , var )
+		if not os.path.isdir(pout): os.makedirs(pout)
+		
+		## List of input files
+		l_ifiles = [ os.path.join( pin , f ) for f in os.listdir(pin) ]
+		l_ifiles.sort()
+		
+		## Split input in years
+		d_ifiles = {}
+		for f in l_ifiles:
+			y = f.split("_")[-1][:4]
+			d_ifiles[y] = f
+		
+		## List of current files
+		l_cfiles = [ os.path.join( pout , f ) for f in os.listdir(pout) ]
+		l_cfiles.sort()
+		
+		## Split current in years
+		d_cfiles = {}
+		for f in l_cfiles:
+			y = f.split("_")[-1][:4]
+			d_cfiles[y] = f
+		
+		
+		## Now loop on years
+		for y in d_ifiles:
+			logs.write( f"   * '{y}'" )
+			
+			## Case 1: no values for the year y
+			if y not in d_cfiles:
+				logs.write( f"     Case 1: no values for the year {y}" )
+				os.system( f"cp {d_ifiles[y]} {pout}" )
+				continue
+			
+			## Load data
+			idata = xr.open_dataset(d_ifiles[y])
+			cdata = xr.open_dataset(d_cfiles[y])
+			
+			## Time axis
+			itime = [ str(x)[:13] for x in idata.time.values ]
+			ctime = [ str(x)[:13] for x in cdata.time.values ]
+			
+			## Time in ctime not in itime
+			ntime = [ s for s in ctime if s not in itime ]
+			
+			## Case 2: all values must be updated
+			if len(ntime) == 0:
+				logs.write( f"     Case 2: all values must be updated" )
+				os.remove(d_cfiles[y])
+				os.system( f"cp {d_ifiles[y]} {pout}" )
+				continue
+			
+			## Case 3: a sub part must be updated
+			logs.write( f"     Case 3: a sub part must be updated" )
+			odata = xr.concat( (idata,cdata.sel( time = ntime)) , dim = "time" , data_vars = "minimal" ).sortby("time")
+			os.remove(d_cfiles[y])
+			encoding = build_encoding_daily( var , odata.lat.size , odata.lon.size )
+			t0   = str(odata.time.values[ 0])[:10].replace("-","")
+			t1   = str(odata.time.values[-1])[:10].replace("-","")
+			fout = f"ERA5_{var}_hour_{kwargs['area_name']}_{t0}-{t1}.nc"
+			odata.to_netcdf( os.path.join( pout , fout ) , encoding = encoding )
+			
+	logs.writeline()
+
+##}}}
+
 def merge_with_current( logs , **kwargs ):##{{{
 	merge_with_current_daily( logs , **kwargs )
+	if kwargs["keep_hourly"]:
+		merge_with_current_hourly( logs , **kwargs )
+##}}}
+
+def rmdirs( pf ):##{{{
+	for f in os.listdir(pf):
+		if os.path.isdir(os.path.join(pf,f)):
+			rmdirs(os.path.join(pf,f))
+		else:
+			os.remove(os.path.join(pf,f))
+	os.rmdir(pf)
 ##}}}
 
 
@@ -150,11 +240,11 @@ def run_cdsupdate( logs , **kwargs ):##{{{
 	
 	## Download data
 	##==============
-#	load_data_cdsapi( l_CDSAPIParams , logs , **kwargs )
+	load_data_cdsapi( l_CDSAPIParams , logs , **kwargs )
 	
 	## Change data format
 	##===================
-#	transform_data_format( logs , **kwargs )
+	transform_data_format( logs , **kwargs )
 	
 	## And now merge with current data
 	##================================
@@ -199,7 +289,11 @@ def start_cdsupdate( argv ):##{{{
 	
 	## Go!
 	if not abort:
-		run_cdsupdate( logs , **kwargs )
+		try:
+			run_cdsupdate( logs , **kwargs )
+		finally:
+			for f in os.listdir(kwargs["tmp"]):
+				rmdirs( os.path.join(kwargs["tmp"],f) )
 	
 	## End
 	cputime1  = systime.process_time()

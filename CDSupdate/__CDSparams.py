@@ -31,5 +31,5 @@ CDSparams.available_area = {
 	"northamerica"  : [-150,-60,30,80]
 	}
 
-CDSparams.available_vars = ["tas","tasmin","tasmax"]
+CDSparams.available_vars = ["tas","tasmin","tasmax","prtot"]
 
