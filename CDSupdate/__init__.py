@@ -26,6 +26,7 @@ from .__logs      import LogFile
 from .__doc       import doc
 from .__release   import version
 from .__CDSparams import CDSparams
+from .__sys       import rmdirs
 
 from .__exceptions import CDSInputPeriodSizeError
 from .__exceptions import CDSInputPeriodOrderError
@@ -43,6 +44,11 @@ from .__convert import build_encoding_hourly
 from .__convert import transform_to_daily
 from .__convert import transform_to_hourly
 from .__convert import transform_data_format
+
+from .__merge import merge_with_current_daily
+from .__merge import merge_with_current_hourly
+from .__merge import merge_with_current
+
 
 ###################
 ## Set variables ##
