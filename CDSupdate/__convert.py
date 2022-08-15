@@ -254,7 +254,7 @@ def transform_to_daily( avar , l_files , year , logs , **kwargs ):##{{{
 	t_beg = dt.datetime.fromisoformat(t_beg)
 	t_end = dt.datetime.fromisoformat(t_end)
 	if data_end.time.size < 24:
-		t_end = t_end - dt.timedelta( days = 1 )
+		t_end = t_end - dt.timedelta( hours = 1 )
 	if t_end < t_beg:
 		return
 	datai = datai.sel( time = slice(t_beg,t_end) )
@@ -366,7 +366,9 @@ def transform_to_hourly( avar , l_files , year , logs , **kwargs ):##{{{
 	t_beg = dt.datetime.fromisoformat(t_beg)
 	t_end = dt.datetime.fromisoformat(t_end)
 	if data_end.time.size < 24:
-		t_end = t_end - dt.timedelta( days = 1 )
+		t_end = t_end - dt.timedelta( hours = 1 )
+	else:
+		t_end = t_end + dt.timedelta( hours = 23 )
 	if t_end < t_beg:
 		return
 	datai = datai.sel( time = slice(t_beg,t_end) )

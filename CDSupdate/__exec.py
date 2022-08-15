@@ -199,8 +199,8 @@ def merge_with_current_hourly( logs , **kwargs ):##{{{
 			odata = xr.concat( (idata,cdata.sel( time = ntime)) , dim = "time" , data_vars = "minimal" ).sortby("time")
 			os.remove(d_cfiles[y])
 			encoding = build_encoding_daily( var , odata.lat.size , odata.lon.size )
-			t0   = str(odata.time.values[ 0])[:10].replace("-","")
-			t1   = str(odata.time.values[-1])[:10].replace("-","")
+			t0   = str(odata.time.values[ 0])[:13].replace("-","").replace("T","")
+			t1   = str(odata.time.values[-1])[:13].replace("-","").replace("T","")
 			fout = f"ERA5_{var}_hour_{kwargs['area_name']}_{t0}-{t1}.nc"
 			odata.to_netcdf( os.path.join( pout , fout ) , encoding = encoding )
 			
