@@ -276,6 +276,10 @@ def transform_to_daily( avar , l_files , year , logs , **kwargs ):##{{{
 	## Extract array, and change axis order
 	arr = data[evar].values[:,argslat,:][:,:,argslon].copy()
 	
+	if avar in ["zg500"]:
+		g = 9.80665
+		arr = arr / g
+	
 	## Back to xarray
 	xarr = xr.DataArray( arr , dims = ["time","lat","lon"] , coords = [time,lat,lon] )
 	

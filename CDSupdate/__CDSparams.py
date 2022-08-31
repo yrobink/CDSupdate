@@ -62,6 +62,17 @@ class CDSParams:##{{{
 			self.available_area[str(self.areas_tab.iloc[i,0])] = [float(x) for x in self.areas_tab.iloc[i,1:].values.tolist()]
 	##}}}
 	
+	def level( self , cvar ):##{{{
+		tab   = self.cvar_tab.copy()
+		tab.index = tab["AMIP"]
+		return tab.loc[cvar,"level"]
+	##}}}
+	
+	def level_value( self , cvar ):
+		tab   = self.cvar_tab.copy()
+		tab.index = tab["AMIP"]
+		return tab.loc[cvar,"level_value"]
+	
 	def attrs( self , cvar , freq = "hourly" ):##{{{
 		
 		attrs = {}

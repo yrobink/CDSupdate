@@ -205,7 +205,6 @@ def load_data_cdsapi( l_CDSAPIParams , logs , **kwargs ):##{{{
 	area = [lat_max,lon_min,lat_min,lon_max]
 	
 	## cdsapi base params
-	name    = "reanalysis-era5-single-levels"
 	bparams = { "product_type" : "reanalysis",
 	           "format"        : "netcdf",
 	           "area"          : area
@@ -229,13 +228,17 @@ def load_data_cdsapi( l_CDSAPIParams , logs , **kwargs ):##{{{
 		logs.write( f"Download data '{var}'" )
 		for cap in l_CDSAPIParams:
 			
+			level = CDSparams.level(var)
 			if cap[1].year < 1959:
-				name = "reanalysis-era5-single-levels-preliminary-back-extension"
+				name = f"reanalysis-era5-{level}-levels-preliminary-back-extension"
 			else:
-				name = "reanalysis-era5-single-levels"
+				name = f"reanalysis-era5-{level}-levels"
 			
 			## Merge base params and time params
 			params = { **bparams , **cap[0] }
+			
+			if level == "pressure":
+				params = { **params , **{"pressure_level" : str(CDSparams.level_value(var))} }
 			
 			## Add variable
 			params["variable"] = CDSparams.AMIP_CDS[var]
