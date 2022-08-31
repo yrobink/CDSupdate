@@ -1,5 +1,5 @@
 
-## Copyright(c) 2022 Andreia Hisi, Yoann Robin
+## Copyright(c) 2022 Yoann Robin
 ## 
 ## This file is part of CDSupdate.
 ## 
@@ -33,8 +33,6 @@ from .__exceptions import CDSInputPeriodOrderError
 
 from .__download import build_yearly_CDSAPIParams
 from .__download import build_CDSAPIParams
-from .__download import build_name_AMIP_ERA5
-from .__download import build_name_AMIP_CDSAPI
 from .__download import load_data_cdsapi
 
 from .__convert import build_attrs_daily

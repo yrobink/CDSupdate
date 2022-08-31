@@ -1,5 +1,5 @@
 
-## Copyright(c) 2022 Andreia Hisi, Yoann Robin
+## Copyright(c) 2022 Yoann Robin
 ## 
 ## This file is part of CDSupdate.
 ## 
@@ -16,20 +16,70 @@
 ## You should have received a copy of the GNU General Public License
 ## along with CDSupdate.  If not, see <https://www.gnu.org/licenses/>.
 
+import os
+import pandas as pd
+
+
 ## All fixed parameters
 ##=====================
 
-class CDSParams(object):
-	pass
+class CDSParams:##{{{
+	
+	def __init__(self):##{{{
+		
+		cpath = os.path.dirname(os.path.abspath(__file__))
+		
+		## First, read the table of variables
+		self.cvar_tab = pd.read_csv( os.path.join( cpath , "data" , "ERA5-name.csv" ) , keep_default_na = False )
+		
+		## List of available variables
+		self.available_vars = self.cvar_tab["AMIP"].values.tolist()
+		if "tas" in self.available_vars:
+			self.available_vars.append("tasmax")
+			self.available_vars.append("tasmin")
+		self.available_vars.sort()
+		
+		## Conversion
+		self.AMIP_ERA5 = { str(self.cvar_tab.loc[i,"AMIP"]) : str(self.cvar_tab.loc[i,"ERA5"]) for i in range(self.cvar_tab.shape[0]) }
+		self.ERA5_AMIP = { str(self.cvar_tab.loc[i,"ERA5"]) : str(self.cvar_tab.loc[i,"AMIP"]) for i in range(self.cvar_tab.shape[0]) }
+		self.AMIP_CDS  = { str(self.cvar_tab.loc[i,"AMIP"]) : str(self.cvar_tab.loc[i,"CDS"])  for i in range(self.cvar_tab.shape[0]) }
+		self.CDS_AMIP  = { str(self.cvar_tab.loc[i,"CDS"])  : str(self.cvar_tab.loc[i,"AMIP"]) for i in range(self.cvar_tab.shape[0]) }
+		
+		## Now read description
+		self.description = {}
+		for cvar in self.available_vars:
+			try:
+				with open( os.path.join( cpath , "data" , f"ERA5-{cvar}-description.txt" ) , "r" ) as f:
+					self.description[cvar] = "".join(f.readlines()).replace("\n","")
+			except:
+				self.description[cvar] = ""
+		
+		## Now read areas
+		self.areas_tab = pd.read_csv( os.path.join( cpath , "data" , "areas.csv" ) )
+		
+		self.available_area = {}
+		for i in range(self.areas_tab.shape[0]):
+			self.available_area[str(self.areas_tab.iloc[i,0])] = [float(x) for x in self.areas_tab.iloc[i,1:].values.tolist()]
+	##}}}
+	
+	def attrs( self , cvar , freq = "hourly" ):##{{{
+		
+		attrs = {}
+		tab   = self.cvar_tab.copy()
+		tab.index = tab["AMIP"]
+		
+		attrs["standard_name"] = tab.loc[cvar]["standard_name"]
+		attrs["long_name"]     = tab.loc[cvar][f"{freq}_long_name"]
+		attrs["units"]         = tab.loc[cvar]["units"]
+		attrs["comment"]       = tab.loc[cvar][f"{freq}_comment"]
+		attrs["CDS_name"]      = tab.loc[cvar]["CDS"]
+		attrs["ERA5_name"]     = tab.loc[cvar]["ERA5"]
+		attrs["description"]   = self.description[cvar]
+		
+		return attrs
+	##}}}
+	
+##}}}
 
 CDSparams = CDSParams()
-
-CDSparams.available_area = {
-	"world"  : [-180,180,-90,90],
-	"europe" : [-25,40,34,72],
-	"northatlantic" : [-80,50,5,70],
-	"northamerica"  : [-150,-60,30,80]
-	}
-
-CDSparams.available_vars = ["tas","tasmin","tasmax","prtot","psl"]
 

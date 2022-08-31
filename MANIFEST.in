@@ -1,0 +1,2 @@
+include CDSupdate/data/*.csv
+include CDSupdate/data/*.txt

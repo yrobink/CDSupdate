@@ -1,5 +1,5 @@
 
-## Copyright(c) 2022 Andreia Hisi, Yoann Robin
+## Copyright(c) 2022 Yoann Robin
 ## 
 ## This file is part of CDSupdate.
 ## 
@@ -27,13 +27,15 @@ exec("".join(lines))
 ## Required elements
 author           = ", ".join(authors)
 author_email     = ", ".join(authors_email)
-package_dir      = { "CDSupdate" : os.path.join( cpath , "CDSupdate" ) }
+#package_dir      = { "CDSupdate" : os.path.join( cpath , "CDSupdate" ) }
+package_dir      = { "CDSupdate" : "CDSupdate" }
 requires         = [ "numpy" , "scipy" , "xarray" , "netCDF4" , "cftime" , "cdsapi" ]
 scripts          = ["scripts/cdsupdate"]
 keywords         = ["Climate Data Store","Auto update"]
 platforms        = ["linux","macosx"]
 packages         = [
 	"CDSupdate",
+	"CDSupdate.data",
 	]
 
 ## Now the setup
@@ -52,6 +54,7 @@ setup(  name             = name,
 		scripts          = scripts,
 		license          = license,
 		keywords         = keywords,
-		platforms        = platforms
+		platforms        = platforms,
+		include_package_data = True
      )
 

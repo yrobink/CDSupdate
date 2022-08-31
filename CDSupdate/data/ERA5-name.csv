@@ -1,0 +1,6 @@
+AMIP,CDS,ERA5,standard_name,hourly_long_name,daily_long_name,units,hourly_comment,daily_comment
+tas,2m_temperature,t2m,air_temperature,Hourly Mean Near-Surface Air Temperature,Daily Mean Near-Surface Air Temperature,Kelvin,,Computed as hourly average
+tasmin,,,air_temperature,,Daily Min Near-Surface Air Temperature,Kelvin,,
+tasmax,,,air_temperature,,Daily Max Near-Surface Air Temperature,Kelvin,,
+prtot,mean_total_precipitation_rate,mtpr,precipitation_flux,Total Precipitation Flux,Total Precipitation Flux,kg.m-2.s-1,,
+psl,mean_sea_level_pressure,msl,air_pressure_at_sea_level,Sea Level Pressure,Sea Level Pressure,Pa,,

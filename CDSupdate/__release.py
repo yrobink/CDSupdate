@@ -1,5 +1,5 @@
 
-## Copyright(c) 2022 Andreia Hisi, Yoann Robin
+## Copyright(c) 2022 Yoann Robin
 ## 
 ## This file is part of CDSupdate.
 ## 
@@ -20,7 +20,7 @@
 version_major = "0"
 version_minor = "1"
 version_patch = "0"
-version_extra = "a13"
+version_extra = "a14"
 version       = f"{version_major}.{version_minor}.{version_patch}{version_extra}"
 
 name = "CDSupdate"
@@ -32,15 +32,15 @@ CDSupdate is a tools to automatically download and update data from the Climate
 Data Store. Currently, only ERA5 is supported.
 """
 
-authors       = ["Andreia Hisi","Yoann Robin"]
-authors_email = ["andreia.hisi@todo.todo","yoann.robin.k@gmail.com"]
+authors       = ["Yoann Robin"]
+authors_email = ["yoann.robin.k@gmail.com"]
 authors_doc   = ", ".join( [ f"{ath} ({athm})" for ath,athm in zip(authors,authors_email) ] )
 
 src_url = "https://github.com/yrobink/CDSupdate"
 
 license = "GNU-GPL3"
 license_txt = """\
-Copyright(c) 2022 Andreia Hisi, Yoann Robin
+Copyright(c) 2022 Yoann Robin
 
 This file is part of CDSupdate.
 

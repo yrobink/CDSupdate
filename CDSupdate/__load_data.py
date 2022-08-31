@@ -1,5 +1,5 @@
 
-## Copyright(c) 2022 Andreia Hisi, Yoann Robin
+## Copyright(c) 2022 Yoann Robin
 ## 
 ## This file is part of CDSupdate.
 ## 

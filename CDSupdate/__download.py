@@ -1,6 +1,6 @@
 
 
-## Copyright(c) 2022 Andreia Hisi, Yoann Robin
+## Copyright(c) 2022 Yoann Robin
 ## 
 ## This file is part of CDSupdate.
 ## 
@@ -32,6 +32,8 @@ import xarray as xr
 #############
 ## Imports ##
 #############
+
+from .__CDSparams import CDSparams
 
 ###############
 ## Functions ##
@@ -194,31 +196,9 @@ def build_CDSAPIParams( period , logs ):##{{{
 	return l_CDSAPIParams
 ##}}}
 
-
-def build_name_AMIP_ERA5():##{{{
-	name_AMPI2ERA5 = { "tas" : "t2m" , "prtot" : "mtpr" , "psl" : "msl" }
-	name_ERA52AMIP = {}
-	for avar in name_AMPI2ERA5:
-		name_ERA52AMIP[name_AMPI2ERA5[avar]] = avar
-	
-	return name_AMPI2ERA5,name_ERA52AMIP
-##}}}
-
-def build_name_AMIP_CDSAPI():##{{{
-	name_AMPI2ERA5 = { "tas" : "2m_temperature" , "prtot" : "mean_total_precipitation_rate" , "psl" : "mean_sea_level_pressure" }
-	name_ERA52AMIP = {}
-	for avar in name_AMPI2ERA5:
-		name_ERA52AMIP[name_AMPI2ERA5[avar]] = avar
-	
-	return name_AMPI2ERA5,name_ERA52AMIP
-##}}}
-
 def load_data_cdsapi( l_CDSAPIParams , logs , **kwargs ):##{{{
 	
 	## TODO add key url to optional user input
-	## TODO name_AMIP2ERA5 in independent function
-	
-	name_AMPI2ERA5,name_ERA52AMIP = build_name_AMIP_CDSAPI()
 	
 	## Build area
 	lon_min,lon_max,lat_min,lat_max = kwargs["area"]
@@ -258,7 +238,7 @@ def load_data_cdsapi( l_CDSAPIParams , logs , **kwargs ):##{{{
 			params = { **bparams , **cap[0] }
 			
 			## Add variable
-			params["variable"] = name_AMPI2ERA5[var]
+			params["variable"] = CDSparams.AMIP_CDS[var]
 			
 			## Path out
 			pout = os.path.join( kwargs["tmp"] , "hourERA5" , var )

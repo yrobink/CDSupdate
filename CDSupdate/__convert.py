@@ -1,5 +1,5 @@
 
-## Copyright(c) 2022 Andreia Hisi, Yoann Robin
+## Copyright(c) 2022 Yoann Robin
 ## 
 ## This file is part of CDSupdate.
 ## 
@@ -30,7 +30,7 @@ import xarray as xr
 ## Imports ##
 #############
 
-from .__download import build_name_AMIP_ERA5
+from .__CDSparams import CDSparams
 
 
 ###############
@@ -40,66 +40,65 @@ from .__download import build_name_AMIP_ERA5
 def build_attrs_daily(var): ##{{{
 	
 	## Start with variables attributes
-	varattrs = {}
-#	varattrs["coordinates"]   = "lat lon"
+	varattrs = CDSparams.attrs( var , "daily" )
 	
-	if var == "tas":
-		varattrs["standard_name"] = "air_temperature" ;
-		varattrs["long_name"]     = "Daily Mean Near-Surface Air Temperature" ;
-		varattrs["units"]         = "Kelvin"
-		varattrs["comment"]       = "Computed as hourly average"
-	if var == "tasmin":
-		varattrs["standard_name"] = "air_temperature" ;
-		varattrs["long_name"]     = "Daily Min Near-Surface Air Temperature" ;
-		varattrs["units"]         = "Kelvin"
-	if var == "tasmax":
-		varattrs["standard_name"] = "air_temperature" ;
-		varattrs["long_name"]     = "Daily Max Near-Surface Air Temperature" ;
-		varattrs["units"]         = "Kelvin"
-	if var == "huss":
-		varattrs["standard_name"] = "specific_humidity" ;
-		varattrs["long_name"]     = "Near Surface Specific Humidity" ;
-		varattrs["units"]         = "kg.kg-1"
-	if var == "rlds":
-		varattrs["standard_name"] = "surface_downwelling_longwave_flux_in_air" ;
-		varattrs["long_name"]     = "Surface Downwelling Longwave Radiation" ;
-		varattrs["units"]         = "W.m-2"
-	if var == "rsds":
-		varattrs["standard_name"] = "surface_downwelling_shortwave_flux_in_air" ;
-		varattrs["long_name"]     = "Surface Downwelling Shortwave Radiation" ;
-		varattrs["units"]         = "W.m-2"
-	if var == "sfcWind":
-		varattrs["standard_name"] = "wind_speed" ;
-		varattrs["long_name"]     = "Near-Surface Wind Speed" ;
-		varattrs["units"]         = "m.s-1"
-	if var == "pr":
-		varattrs["standard_name"] = "precipitation_flux" ;
-		varattrs["long_name"]     = "Liquid Precipitation Flux" ;
-		varattrs["units"]         = "kg.m-2.s-1"
-	if var == "prsn":
-		varattrs["standard_name"] = "snowfall_flux" ;
-		varattrs["long_name"]     = "Snowfall Flux" ;
-		varattrs["units"]         = "kg.m-2.s-1"
-	if var == "prtot":
-		varattrs["standard_name"] = "precipitation_flux" ;
-		varattrs["long_name"]     = "Total Precipitation Flux" ;
-		varattrs["units"]         = "kg.m-2.s-1"
-	if var == "ps":
-		varattrs["standard_name"] = "surface_air_pressure" ;
-		varattrs["long_name"]     = "Surface Air Pressure" ;
-		varattrs["units"]         = "Pa"
-	if var == "psl":
-		varattrs["standard_name"] = "air_pressure_at_sea_level" ;
-		varattrs["long_name"]     = "Sea Level Pressure" ;
-		varattrs["units"]         = "Pa"
-	if var == "hurs":
-		varattrs["standard_name"] = "relative_humidity" ;
-		varattrs["long_name"]     = "Relative Humidity" ;
-		varattrs["units"]         = "%"
-	if var == "co2s":
-		varattrs["standard_name"] = "mass_concentration_of_carbon_dioxide_in_air" ;
-		varattrs["long_name"]     = "Near-Surface Mass Concentration of CO2" ;
-		varattrs["units"]         = "kg.m-3"
+#	if var == "tas":
+#		varattrs["standard_name"] = "air_temperature" ;
+#		varattrs["long_name"]     = "Daily Mean Near-Surface Air Temperature" ;
+#		varattrs["units"]         = "Kelvin"
+#		varattrs["comment"]       = "Computed as hourly average"
+#	if var == "tasmin":
+#		varattrs["standard_name"] = "air_temperature" ;
+#		varattrs["long_name"]     = "Daily Min Near-Surface Air Temperature" ;
+#		varattrs["units"]         = "Kelvin"
+#	if var == "tasmax":
+#		varattrs["standard_name"] = "air_temperature" ;
+#		varattrs["long_name"]     = "Daily Max Near-Surface Air Temperature" ;
+#		varattrs["units"]         = "Kelvin"
+#	if var == "huss":
+#		varattrs["standard_name"] = "specific_humidity" ;
+#		varattrs["long_name"]     = "Near Surface Specific Humidity" ;
+#		varattrs["units"]         = "kg.kg-1"
+#	if var == "rlds":
+#		varattrs["standard_name"] = "surface_downwelling_longwave_flux_in_air" ;
+#		varattrs["long_name"]     = "Surface Downwelling Longwave Radiation" ;
+#		varattrs["units"]         = "W.m-2"
+#	if var == "rsds":
+#		varattrs["standard_name"] = "surface_downwelling_shortwave_flux_in_air" ;
+#		varattrs["long_name"]     = "Surface Downwelling Shortwave Radiation" ;
+#		varattrs["units"]         = "W.m-2"
+#	if var == "sfcWind":
+#		varattrs["standard_name"] = "wind_speed" ;
+#		varattrs["long_name"]     = "Near-Surface Wind Speed" ;
+#		varattrs["units"]         = "m.s-1"
+#	if var == "pr":
+#		varattrs["standard_name"] = "precipitation_flux" ;
+#		varattrs["long_name"]     = "Liquid Precipitation Flux" ;
+#		varattrs["units"]         = "kg.m-2.s-1"
+#	if var == "prsn":
+#		varattrs["standard_name"] = "snowfall_flux" ;
+#		varattrs["long_name"]     = "Snowfall Flux" ;
+#		varattrs["units"]         = "kg.m-2.s-1"
+#	if var == "prtot":
+#		varattrs["standard_name"] = "precipitation_flux" ;
+#		varattrs["long_name"]     = "Total Precipitation Flux" ;
+#		varattrs["units"]         = "kg.m-2.s-1"
+#	if var == "ps":
+#		varattrs["standard_name"] = "surface_air_pressure" ;
+#		varattrs["long_name"]     = "Surface Air Pressure" ;
+#		varattrs["units"]         = "Pa"
+#	if var == "psl":
+#		varattrs["standard_name"] = "air_pressure_at_sea_level" ;
+#		varattrs["long_name"]     = "Sea Level Pressure" ;
+#		varattrs["units"]         = "Pa"
+#	if var == "hurs":
+#		varattrs["standard_name"] = "relative_humidity" ;
+#		varattrs["long_name"]     = "Relative Humidity" ;
+#		varattrs["units"]         = "%"
+#	if var == "co2s":
+#		varattrs["standard_name"] = "mass_concentration_of_carbon_dioxide_in_air" ;
+#		varattrs["long_name"]     = "Near-Surface Mass Concentration of CO2" ;
+#		varattrs["units"]         = "kg.m-3"
 	
 	## Coordinates attributes
 	timeattrs = {}
@@ -121,7 +120,7 @@ def build_attrs_daily(var): ##{{{
 	
 	## Global attributes
 	attrs = {}
-	attrs["title"]         = "reanalysis-era5-single-levels"
+	attrs["title"]         = "reanalysis-era5"
 	attrs["Conventions"]   = "CF-1.6"
 	attrs["source"]        = "https://cds.climate.copernicus.eu/cdsapp#!/dataset/reanalysis-era5-single-levels?tab=overview"
 	attrs["contact"]       = "andreia.hisi@lsce.ipsl.fr, yoann.robin@lsce.ipsl.fr"
@@ -134,57 +133,56 @@ def build_attrs_daily(var): ##{{{
 def build_attrs_hourly(var): ##{{{
 	
 	## Start with variables attributes
-	varattrs = {}
-#	varattrs["coordinates"]   = "lat lon"
+	varattrs = CDSparams.attrs( var , "hourly" )
 	
-	if var == "tas":
-		varattrs["standard_name"] = "air_temperature" ;
-		varattrs["long_name"]     = "Hourly Mean Near-Surface Air Temperature" ;
-		varattrs["units"]         = "Kelvin"
-	if var == "huss":
-		varattrs["standard_name"] = "specific_humidity" ;
-		varattrs["long_name"]     = "Near Surface Specific Humidity" ;
-		varattrs["units"]         = "kg.kg-1"
-	if var == "rlds":
-		varattrs["standard_name"] = "surface_downwelling_longwave_flux_in_air" ;
-		varattrs["long_name"]     = "Surface Downwelling Longwave Radiation" ;
-		varattrs["units"]         = "W.m-2"
-	if var == "rsds":
-		varattrs["standard_name"] = "surface_downwelling_shortwave_flux_in_air" ;
-		varattrs["long_name"]     = "Surface Downwelling Shortwave Radiation" ;
-		varattrs["units"]         = "W.m-2"
-	if var == "sfcWind":
-		varattrs["standard_name"] = "wind_speed" ;
-		varattrs["long_name"]     = "Near-Surface Wind Speed" ;
-		varattrs["units"]         = "m.s-1"
-	if var == "pr":
-		varattrs["standard_name"] = "precipitation_flux" ;
-		varattrs["long_name"]     = "Liquid Precipitation Flux" ;
-		varattrs["units"]         = "kg.m-2.s-1"
-	if var == "prsn":
-		varattrs["standard_name"] = "snowfall_flux" ;
-		varattrs["long_name"]     = "Snowfall Flux" ;
-		varattrs["units"]         = "kg.m-2.s-1"
-	if var == "prtot":
-		varattrs["standard_name"] = "precipitation_flux" ;
-		varattrs["long_name"]     = "Total Precipitation Flux" ;
-		varattrs["units"]         = "kg.m-2.s-1"
-	if var == "ps":
-		varattrs["standard_name"] = "surface_air_pressure" ;
-		varattrs["long_name"]     = "Surface Air Pressure" ;
-		varattrs["units"]         = "Pa"
-	if var == "psl":
-		varattrs["standard_name"] = "air_pressure_at_sea_level" ;
-		varattrs["long_name"]     = "Sea Level Pressure" ;
-		varattrs["units"]         = "Pa"
-	if var == "hurs":
-		varattrs["standard_name"] = "relative_humidity" ;
-		varattrs["long_name"]     = "Relative Humidity" ;
-		varattrs["units"]         = "%"
-	if var == "co2s":
-		varattrs["standard_name"] = "mass_concentration_of_carbon_dioxide_in_air" ;
-		varattrs["long_name"]     = "Near-Surface Mass Concentration of CO2" ;
-		varattrs["units"]         = "kg.m-3"
+#	if var == "tas":
+#		varattrs["standard_name"] = "air_temperature" ;
+#		varattrs["long_name"]     = "Hourly Mean Near-Surface Air Temperature" ;
+#		varattrs["units"]         = "Kelvin"
+#	if var == "huss":
+#		varattrs["standard_name"] = "specific_humidity" ;
+#		varattrs["long_name"]     = "Near Surface Specific Humidity" ;
+#		varattrs["units"]         = "kg.kg-1"
+#	if var == "rlds":
+#		varattrs["standard_name"] = "surface_downwelling_longwave_flux_in_air" ;
+#		varattrs["long_name"]     = "Surface Downwelling Longwave Radiation" ;
+#		varattrs["units"]         = "W.m-2"
+#	if var == "rsds":
+#		varattrs["standard_name"] = "surface_downwelling_shortwave_flux_in_air" ;
+#		varattrs["long_name"]     = "Surface Downwelling Shortwave Radiation" ;
+#		varattrs["units"]         = "W.m-2"
+#	if var == "sfcWind":
+#		varattrs["standard_name"] = "wind_speed" ;
+#		varattrs["long_name"]     = "Near-Surface Wind Speed" ;
+#		varattrs["units"]         = "m.s-1"
+#	if var == "pr":
+#		varattrs["standard_name"] = "precipitation_flux" ;
+#		varattrs["long_name"]     = "Liquid Precipitation Flux" ;
+#		varattrs["units"]         = "kg.m-2.s-1"
+#	if var == "prsn":
+#		varattrs["standard_name"] = "snowfall_flux" ;
+#		varattrs["long_name"]     = "Snowfall Flux" ;
+#		varattrs["units"]         = "kg.m-2.s-1"
+#	if var == "prtot":
+#		varattrs["standard_name"] = "precipitation_flux" ;
+#		varattrs["long_name"]     = "Total Precipitation Flux" ;
+#		varattrs["units"]         = "kg.m-2.s-1"
+#	if var == "ps":
+#		varattrs["standard_name"] = "surface_air_pressure" ;
+#		varattrs["long_name"]     = "Surface Air Pressure" ;
+#		varattrs["units"]         = "Pa"
+#	if var == "psl":
+#		varattrs["standard_name"] = "air_pressure_at_sea_level" ;
+#		varattrs["long_name"]     = "Sea Level Pressure" ;
+#		varattrs["units"]         = "Pa"
+#	if var == "hurs":
+#		varattrs["standard_name"] = "relative_humidity" ;
+#		varattrs["long_name"]     = "Relative Humidity" ;
+#		varattrs["units"]         = "%"
+#	if var == "co2s":
+#		varattrs["standard_name"] = "mass_concentration_of_carbon_dioxide_in_air" ;
+#		varattrs["long_name"]     = "Near-Surface Mass Concentration of CO2" ;
+#		varattrs["units"]         = "kg.m-3"
 	
 	## Coordinates attributes
 	timeattrs = {}
@@ -206,7 +204,7 @@ def build_attrs_hourly(var): ##{{{
 	
 	## Global attributes
 	attrs = {}
-	attrs["title"]         = "reanalysis-era5-single-levels"
+	attrs["title"]         = "reanalysis-era5"
 	attrs["Conventions"]   = "CF-1.6"
 	attrs["source"]        = "https://cds.climate.copernicus.eu/cdsapp#!/dataset/reanalysis-era5-single-levels?tab=overview"
 	attrs["contact"]       = "andreia.hisi@lsce.ipsl.fr, yoann.robin@lsce.ipsl.fr"
@@ -228,7 +226,7 @@ def build_encoding_daily( var , nlat , nlon ):##{{{
 ##}}}
 
 def build_encoding_hourly( var , nlat , nlon ):##{{{
-	encoding = { "time" : { "dtype" : "double"  , "zlib" : True , "complevel": 5 , "chunksizes" : (1,) , "units" : "hours since 1850-01-01" } ,
+	encoding = { "time" : { "dtype" : "double"  , "zlib" : True , "complevel": 5 , "chunksizes" : (1,) , "units" : "hours since 1850-01-01 00:00:00" } ,
 				 "lon"  : { "dtype" : "double"  , "zlib" : True , "complevel": 5 , "chunksizes" : (nlon,) } ,
 				 "lat"  : { "dtype" : "double"  , "zlib" : True , "complevel": 5 , "chunksizes" : (nlat,) } ,
 				 var    : { "dtype" : "float32" , "zlib" : True , "complevel": 5 , "chunksizes" : (1,nlat,nlon) } ,
@@ -241,8 +239,7 @@ def build_encoding_hourly( var , nlat , nlon ):##{{{
 def transform_to_daily( avar , l_files , year , logs , **kwargs ):##{{{
 	
 	## dict to convert ERA5 / AMIP
-	name_AMPI2ERA5,name_ERA52AMIP = build_name_AMIP_ERA5()
-	evar = name_AMPI2ERA5[avar]
+	evar = CDSparams.AMIP_ERA5[avar]
 	
 	## Load data
 	datai = xr.concat( [xr.load_dataset(f) for f in l_files] , dim = "time" )
@@ -353,8 +350,7 @@ def transform_to_daily( avar , l_files , year , logs , **kwargs ):##{{{
 def transform_to_hourly( avar , l_files , year , logs , **kwargs ):##{{{
 	
 	## dict to convert ERA5 / AMIP
-	name_AMPI2ERA5,name_ERA52AMIP = build_name_AMIP_ERA5()
-	evar = name_AMPI2ERA5[avar]
+	evar = CDSparams.AMIP_ERA5[avar]
 	
 	## Load data
 	datai = xr.concat( [xr.load_dataset(f) for f in l_files] , dim = "time" )

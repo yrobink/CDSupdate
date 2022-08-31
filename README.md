@@ -68,7 +68,7 @@ cdsupdate --log test.log --period 2019-11-09/2022-01-17 --var tas --area northat
 
 ## License
 
-Copyright(c) 2022 Andreia Hisi, Yoann Robin
+Copyright(c) 2022 Yoann Robin
 
 This file is part of CDSupdate.
 
