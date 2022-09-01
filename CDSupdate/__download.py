@@ -152,8 +152,8 @@ def build_CDSAPIParams( period , logs ):##{{{
 	
 	t_now   = dt.datetime.utcnow()
 	t_now   = dt.datetime( t_now.year , t_now.month , t_now.day )
-	t_break = t_now - dt.timedelta( days = 30 )
-	logs.write( f"Break found: {t_break} (now - 30 days)" )
+	t_break = t_now - dt.timedelta( days = 93 )
+	logs.write( f"Break found: {t_break} (now - 93 days)" )
 	
 	## Loop on year
 	logs.write( "Periods to download:" )

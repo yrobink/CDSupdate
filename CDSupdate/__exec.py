@@ -119,6 +119,7 @@ def start_cdsupdate( argv ):##{{{
 		try:
 			run_cdsupdate( logs , **kwargs )
 		finally:
+#			pass
 			for f in os.listdir(kwargs["tmp"]):
 				rmdirs( os.path.join(kwargs["tmp"],f) )
 	
