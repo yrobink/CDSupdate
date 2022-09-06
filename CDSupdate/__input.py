@@ -65,7 +65,7 @@ def read_input( argv , future_logs ):
 		False if all inputs are valid, True otherwise.
 	"""
 	abort  = False
-	kwargs = { "clog" : False , "keep_hourly" : False , "help" : False }
+	kwargs = { "clog" : False , "keep_hourly" : False , "help" : False , "keep_tmp" : False }
 	
 	## Start by read input parameters
 	##===============================
@@ -114,6 +114,8 @@ def read_input( argv , future_logs ):
 		if arg in ["--help"]:
 			kwargs["help"] = True
 			abort = True
+		if arg in ["--keeptmp"]:
+			kwargs["keep_tmp"] = True
 	
 	## Define the log
 	##===============
