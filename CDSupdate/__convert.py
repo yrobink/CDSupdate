@@ -242,7 +242,14 @@ def transform_to_daily( avar , l_files , year , logs , **kwargs ):##{{{
 	evar = CDSparams.AMIP_ERA5[avar]
 	
 	## Load data
-	datai = xr.concat( [xr.load_dataset(f) for f in l_files] , dim = "time" )
+	ldata = []
+	for f in l_files:
+		dx = xr.open_dataset(f)
+		if "expver" in dx:
+			dx = dx.sel( expver = 1 ).combine_first( dx.sel( expver = 5 ) )
+		ldata.append(dx)
+	
+	datai = xr.concat( ldata , dim = "time" ).compute()
 	
 	## First the time axis, check that the last day has the 24 hours
 	t_beg = str(datai.time[ 0].values)[:10]
@@ -357,7 +364,14 @@ def transform_to_hourly( avar , l_files , year , logs , **kwargs ):##{{{
 	evar = CDSparams.AMIP_ERA5[avar]
 	
 	## Load data
-	datai = xr.concat( [xr.load_dataset(f) for f in l_files] , dim = "time" )
+	ldata = []
+	for f in l_files:
+		dx = xr.open_dataset(f)
+		if "expver" in dx:
+			dx = dx.sel( expver = 1 ).combine_first( dx.sel( expver = 5 ) )
+		ldata.append(dx)
+	
+	datai = xr.concat( ldata , dim = "time" ).compute()
 	
 	## First the time axis, check that the last day has the 24 hours
 	t_beg = str(datai.time[ 0].values)[:10]

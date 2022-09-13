@@ -65,6 +65,8 @@ Input parameters
     Temporary directory used to download data before formatting. If not given, a
     random folder is built in the directory given by the environement variable
     '$WORKDIR'. Raise an error if not given and '$WORKDIR' is not set.
+--keeptmp
+    Not remove the temporary directory at the end
 --help
     Print the documentation.
 --origin
@@ -84,6 +86,10 @@ About the area
 --------------
 You can pass a box, or the following keywords:
 {}
+
+Examples
+--------
+cdsupdate --clog --period 2022-01-01/2022-01-14 --var prtot --keephourly --area NorthAtlantic --odir $wdir/data/ --tmpdir $wdir/tmp --keeptmp ## Change wdir for a directory
 
 License {}
 {}
