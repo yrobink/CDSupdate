@@ -55,7 +55,7 @@ Input parameters
     is not given, t1 = today.
 --var var0,var1,...
     List of variables to download/update.
---area xmin,xmax,ymin,ymax
+--area name,xmin,xmax,ymin,ymax OR keyword
     Area, can be a grid, or a keyword, see area section.
 --keephourly
     Keep also hourly data
@@ -71,9 +71,9 @@ Input parameters
     Print the documentation.
 --origin
     Data to download, currently not used (only ERA5 reanalysis).
---cdskey
+--cdskey [currently not used]
     CDS key, if not given use '$HOME/.cdsapirc'.
---cdsurl
+--cdsurl [currently not used]
     CDS url, if not given use '$HOME/.cdsapirc'.
 
 About the variables
@@ -90,6 +90,7 @@ You can pass a box, or the following keywords:
 Examples
 --------
 cdsupdate --clog --period 2022-01-01/2022-01-14 --var prtot --keephourly --area NorthAtlantic --odir $wdir/data/ --tmpdir $wdir/tmp --keeptmp ## Change wdir for a directory
+cdsupdate --clog --period 2022-01-01/2022-01-14 --var prtot --keephourly --area France,-5,10,41,52 --odir $wdir/data/ --tmpdir $wdir/tmp --keeptmp ## Change wdir for a directory
 
 License {}
 {}

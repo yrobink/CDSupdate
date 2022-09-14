@@ -159,11 +159,11 @@ def read_input( argv , future_logs ):
 		kwargs["area"]      = CDSparams.available_area[kwargs["area"]]
 	else:
 		try:
-			area = [float(x) for x in kwargs["area"].split(",")]
+			area_name = kwargs["area"].split(",")[0]
+			area = [float(x) for x in kwargs["area"].split(",")[1:]]
 			if not len(area) == 4:
 				raise ValueError
 			lon_min,lon_max,lat_min,lat_max = area
-			area_name = "box-{:,g}-{:,g}-{:,g}-{:,g}".format(lon_min+180,lon_max+180,lat_min,lat_max)
 			kwargs["area"]      = area
 			kwargs["area_name"] = area_name
 		except:

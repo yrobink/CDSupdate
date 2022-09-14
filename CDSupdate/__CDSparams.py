@@ -37,6 +37,7 @@ class CDSParams:##{{{
 		if "tas" in self.available_vars:
 			self.available_vars.append("tasmax")
 			self.available_vars.append("tasmin")
+		self.available_vars = list(set(self.available_vars))
 		self.available_vars.sort()
 		
 		## Conversion
@@ -68,10 +69,11 @@ class CDSParams:##{{{
 		return tab.loc[cvar,"level"]
 	##}}}
 	
-	def level_value( self , cvar ):
+	def level_value( self , cvar ):##{{{
 		tab   = self.cvar_tab.copy()
 		tab.index = tab["AMIP"]
 		return tab.loc[cvar,"level_value"]
+	##}}}
 	
 	def attrs( self , cvar , freq = "hourly" ):##{{{
 		
