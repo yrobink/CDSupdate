@@ -202,37 +202,9 @@ def BRUT_to_AMIP_format():##{{{
 				os.makedirs(opath)
 			logger.info( f" * Save 'TMP/ERA5-AMIP/day/{cvar}/{ofile}'" )
 			ddata.to_netcdf( os.path.join( opath , ofile ) )
-			
-			if not cvar in ["tas"]:
-				continue
-			
-			## Loop for min max
-			for sup in ["min","max"]:
-				
-				avar = cvar + sup
-				
-				## Build daily variable
-				if sup == "min":
-					ddata = idata.groupby("time.dayofyear").min().rename( dayofyear = "time" ).assign_coords( time = dtime ).rename( { cvar : cvar + sup } )
-				else:
-					ddata = idata.groupby("time.dayofyear").max().rename( dayofyear = "time" ).assign_coords( time = dtime ).rename( { cvar : cvar + sup } )
-				
-				## Save daily variable
-				opath = os.path.join( cdsuParams.tmp , "ERA5-AMIP" , "day" , avar )
-				t0    = str(ddata.time[ 0].values)[:10].replace("-","").replace(" ","").replace("T","")
-				t1    = str(ddata.time[-1].values)[:10].replace("-","").replace(" ","").replace("T","")
-				ofile = f"ERA5-AMIP_{avar}_day_{area_name}_{t0}-{t1}.nc"
-				target = os.path.join( opath , ofile )
-				if not os.path.isdir(opath):
-					os.makedirs(opath)
-				logger.info( f" * Save 'TMP/ERA5-AMIP/day/{avar}/{ofile}'" )
-				ddata.to_netcdf( os.path.join( opath , ofile ) )
 ##}}}
 
-
 def build_gattrs( cvar ): ##{{{
-	
-	## For all
 	
 	## Global attributes
 	gattrs = {}
@@ -331,7 +303,6 @@ def save_netcdf( idata , cvar , freq , ofile ):##{{{
 			ncf.setncattr( attr , gattrs[attr] )
 	
 ##}}}
-
 
 def merge_AMIP_CF_format():##{{{
 	

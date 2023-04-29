@@ -34,9 +34,9 @@ class CDSParams:##{{{
 		
 		## List of available variables
 		self.available_cvars = self.cvar_tab["AMIP"].values.tolist()
-		if "tas" in self.available_cvars:
-			self.available_cvars.append("tasmax")
-			self.available_cvars.append("tasmin")
+		self.available_cvars.append("tasmax")
+		self.available_cvars.append("tasmin")
+		self.available_cvars.append("sfcWind")
 		self.available_cvars = list(set(self.available_cvars))
 		self.available_cvars.sort()
 		

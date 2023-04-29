@@ -188,12 +188,20 @@ class CDSUParams:
 			for cvar in self.cvars:
 				if cvar not in self.cdsParams.available_cvars:
 					raise Exception( f"The cvar {cvar} is not supported" )
+			
+			## Specific case: tas => imply tasmin + tasmax
 			for cvar in ["tasmin","tasmax"]:
 				if cvar in self.cvars:
 					self.cvars[self.cvars.index(cvar)] = "tas"
+			
+			## Specific case: wind component are all downloaded if one is requested
+			if "uas" in self.cvars or "vas" in self.cvars or "sfcWind" in self.cvars:
+				self.cvars.append("uas")
+				self.cvars.append("vas")
+			if "sfcWind" in self.cvars:
+				self.cvars[self.cvars.index("sfcWind")] = "uas"
 			self.cvars = list(set(self.cvars))
 			self.cvars.sort()
-			
 			
 			## The area
 			if self.area is None:

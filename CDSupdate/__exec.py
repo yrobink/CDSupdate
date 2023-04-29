@@ -44,6 +44,8 @@ from .__exceptions import AbortForHelpException
 from .__io import load_data_CDS
 from .__io import BRUT_to_AMIP_format
 from .__io import merge_AMIP_CF_format
+from .__extracvars import build_EXTRA_cvars
+
 
 ##################
 ## Init logging ##
@@ -78,6 +80,9 @@ def run_cdsupdate():##{{{
 	
 	## Change data format
 	BRUT_to_AMIP_format()
+	
+	## Extra variables
+	build_EXTRA_cvars()
 	
 	## And now merge with current data
 	merge_AMIP_CF_format()
