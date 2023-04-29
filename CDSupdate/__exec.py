@@ -46,6 +46,8 @@ from .__io import BRUT_to_AMIP_format
 from .__io import merge_AMIP_CF_format
 from .__extracvars import build_EXTRA_cvars
 
+from .__curses_doc import print_doc
+
 
 ##################
 ## Init logging ##
@@ -156,7 +158,7 @@ def start_cdsupdate( argv ):##{{{
 		run_cdsupdate()
 		
 	except AbortForHelpException:
-		pass
+		print_doc()
 	except Exception as e:
 		logger.error( f"Error: {e}" )
 	

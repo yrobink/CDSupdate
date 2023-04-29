@@ -47,35 +47,24 @@ CDSupdate ({})
 
 Input parameters
 ----------------
---log flog
-    Write logs in the file 'flog'.
---clog
-    Print logs in the console, override --log.
+--log [LOGLEVEL FILE]
+    Enable log, first optional is argument is the level (default is WARNING),
+    the second is a file.
 --period t0/t1
     Period to download/update, t* must be in the iso format YYYY-MM-DD. If t1
     is not given, t1 = today.
---var var0,var1,...
+--cvar cvar0,cvar1,...
     List of variables to download/update.
 --area name,xmin,xmax,ymin,ymax OR keyword
     Area, can be a grid, or a keyword, see area section.
---keephourly
+--keep-hourly
     Keep also hourly data
---odir output_directory
+--output-dir output_directory
     Output directory.
---tmpdir temporary_directory
-    Temporary directory used to download data before formatting. If not given, a
-    random folder is built in the directory given by the environement variable
-    '$WORKDIR'. Raise an error if not given and '$WORKDIR' is not set.
---keeptmp
-    Not remove the temporary directory at the end
+--tmp temporary_directory
+    Temporary directory used to download data before formatting.
 --help
     Print the documentation.
---origin
-    Data to download, currently not used (only ERA5 reanalysis).
---cdskey [currently not used]
-    CDS key, if not given use '$HOME/.cdsapirc'.
---cdsurl [currently not used]
-    CDS url, if not given use '$HOME/.cdsapirc'.
 
 About the variables
 -------------------
@@ -90,8 +79,8 @@ You can pass a box, or the following keywords:
 
 Examples
 --------
-cdsupdate --clog --period 2022-01-01/2022-01-14 --var prtot --keephourly --area NorthAtlantic --odir $wdir/data/ --tmpdir $wdir/tmp --keeptmp ## Change wdir for a directory
-cdsupdate --clog --period 2022-01-01/2022-01-14 --var prtot --keephourly --area France,-5,10,41,52 --odir $wdir/data/ --tmpdir $wdir/tmp --keeptmp ## Change wdir for a directory
+cdsupdate --log info --period 2022-01-01/2023-04-14 --cvar tas,pr --keep-hourly --area NorthAtlantic      --output-dir <ERA5_dir> ## Change <ERA5_dir> for a directory
+cdsupdate --log info --period 2022-01-01/2023-04-14 --cvar tas,pr --keep-hourly --area France,-5,10,41,52 --output-dir <ERA5_dir> ## Change <ERA5_dir> for a directory
 
 License {}
 {}
