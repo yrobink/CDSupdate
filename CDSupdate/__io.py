@@ -38,6 +38,7 @@ import cftime
 
 from .__CDSUParams import cdsuParams
 from .__release import version
+from .__release import src_url
 
 
 ##################
@@ -207,10 +208,12 @@ def BRUT_to_AMIP_format():##{{{
 def build_gattrs( cvar ): ##{{{
 	
 	## Global attributes
+	now    = str(dt.datetime.utcnow())[:19]
 	gattrs = {}
 	gattrs["title"]         = f"reanalysis-era5-{cdsuParams.level}-level"
+	gattrs["institution"]   = "ECMWF"
 	gattrs["Conventions"]   = "CF-1.10"
-	gattrs["creation_date"] = str(dt.datetime.utcnow())[:19] + " (UTC)"
+	gattrs["creation_date"] = now + " (UTC)"
 	
 	gattrs["level"] = cdsuParams.level
 	if cdsuParams.level == "single":
@@ -218,7 +221,17 @@ def build_gattrs( cvar ): ##{{{
 	else:
 		gattrs["source"] = "https://doi.org/10.24381/cds.bd0915c6"
 	
+	
+	## Reference
+	if cdsuParams.level == "single":
+		ref  ="Hersbach, H., Bell, B., Berrisford, P., Biavati, G., Horányi, A., Muñoz Sabater, J., Nicolas, J., Peubey, C., Radu, R., Rozum, I., Schepers, D., Simmons, A., Soci, C., Dee, D., Thépaut, J-N. (2023): ERA5 hourly data on single levels from 1940 to present. Copernicus Climate Change Service (C3S) Climate Data Store (CDS), DOI: 10.24381/cds.adbb2d47 (Accessed on {})".format(now)
+	else:
+		"Hersbach, H., Bell, B., Berrisford, P., Biavati, G., Horányi, A., Muñoz Sabater, J., Nicolas, J., Peubey, C., Radu, R., Rozum, I., Schepers, D., Simmons, A., Soci, C., Dee, D., Thépaut, J-N. (2023): ERA5 hourly data on pressure levels from 1940 to present. Copernicus Climate Change Service (C3S) Climate Data Store (CDS), DOI: 10.24381/cds.bd0915c6 (Accessed on {})".format(now)
+	gattrs["references"] = ref
+	
+	## CDSupdate
 	gattrs["CDSupdate_version"] = f"{version}"
+	gattrs["CDSupdate_url"] = src_url
 	
 	return gattrs
 ##}}}

@@ -20,7 +20,7 @@
 version_major = "1"
 version_minor = "0"
 version_patch = "0"
-version_extra = "r1"
+version_extra = "r2"
 version       = f"{version_major}.{version_minor}.{version_patch}{version_extra}"
 
 name = "CDSupdate"
