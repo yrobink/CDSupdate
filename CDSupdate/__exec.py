@@ -1,5 +1,5 @@
 
-## Copyright(c) 2022 Yoann Robin
+## Copyright(c) 2022, 2023 Yoann Robin
 ## 
 ## This file is part of CDSupdate.
 ## 
@@ -22,36 +22,43 @@
 
 import sys,os
 import datetime as dt
-import time as systime
+import logging
 
 import cdsapi
 
 import numpy  as np
+import pandas as pd
 import xarray as xr
+import netCDF4
+
 
 #############
 ## Imports ##
 #############
 
+from .__CDSUParams import cdsuParams
 from .__release    import version
-from .__sys        import rmdirs
-from .__curses_doc import print_doc
-from .__input      import read_input
 
-from .__download import build_CDSAPIParams
-from .__download import load_data_cdsapi
+from .__exceptions import AbortForHelpException
 
-from .__convert import transform_data_format
-from .__convert import build_encoding_daily
+from .__io import load_data_CDS
+from .__io import BRUT_to_AMIP_format
+from .__io import merge_AMIP_CF_format
 
-from .__merge import merge_with_current
+##################
+## Init logging ##
+##################
+
+logger = logging.getLogger(__name__)
+logger.addHandler(logging.NullHandler())
 
 
 ###############
 ## Functions ##
 ###############
 
-def run_cdsupdate( logs , **kwargs ):##{{{
+
+def run_cdsupdate():##{{{
 	"""
 	CDSupdate.run_cdsupdate
 	=======================
@@ -60,22 +67,20 @@ def run_cdsupdate( logs , **kwargs ):##{{{
 	
 	"""
 	
-	## Start by extract years from period, to split in yearly task
-	## Note: the last 30 days will be downloaded day by day
-	##============================================================
-	l_CDSAPIParams = build_CDSAPIParams( kwargs["period"] , logs )
+	## Start by split in yearly / monthly tasks
+	cdsuParams.build_CDSAPIParams()
+	logger.info( "Periods found to download:" )
+	for key in cdsuParams.cdsApiParams:
+		logger.info( " * {} / {}".format(*key) )
 	
 	## Download data
-	##==============
-	load_data_cdsapi( l_CDSAPIParams , logs , **kwargs )
+	load_data_CDS()
 	
 	## Change data format
-	##===================
-	transform_data_format( logs , **kwargs )
+	BRUT_to_AMIP_format()
 	
 	## And now merge with current data
-	##================================
-	merge_with_current( logs , **kwargs )
+	merge_AMIP_CF_format()
 	
 ##}}}
 
@@ -87,48 +92,74 @@ def start_cdsupdate( argv ):##{{{
 	Starting point of 'cdsupdate'.
 	
 	"""
+	
+	
 	## Time counter
-	cputime0  = systime.process_time()
 	walltime0 = dt.datetime.utcnow()
 	
-	## Future logs
-	future_logs = []
-	future_logs.append("LINE")
-	future_logs.append( "Start: {}".format(str(walltime0)[:19] + " (UTC)") )
-	future_logs.append("LINE")
-	future_logs.append( f"CDSupdate version {version}" )
-	future_logs.append("LINE")
-	
 	## Read input
-	kwargs,logs,abort = read_input( argv , future_logs )
+	cdsuParams.init_from_user_input(*argv)
 	
-	## List of all input
-	logs.write("Input parameters")
-	keys = [key for key in kwargs]
-	keys.sort()
-	for key in keys:
-		logs.write( "   * {:{fill}{align}{n}}".format( key , fill = " ",align = "<" , n = 10 ) + ": {}".format(kwargs[key]) )
-	logs.writeline()
+	## Init logs
+	cdsuParams.init_logging()
 	
-	## User asks help
-	if kwargs["help"]:
-		print_doc()
+	## Logging
+	logger.info(cdsuParams.LINE)
+	logger.info( r"   ____ ____  ____                  _       _        " ) 
+	logger.info( r"  / ___|  _ \/ ___| _   _ _ __   __| | __ _| |_ ___  " )
+	logger.info( r" | |   | | | \___ \| | | | '_ \ / _` |/ _` | __/ _ \ " )
+	logger.info( r" | |___| |_| |___) | |_| | |_) | (_| | (_| | ||  __/ " )
+	logger.info( r"  \____|____/|____/ \__,_| .__/ \__,_|\__,_|\__\___| " )
+	logger.info( r"                         |_|                         " )
+	logger.info(cdsuParams.LINE)
+	logger.info( "Start: {}".format( str(walltime0)[:19] + " (UTC)") )
+	logger.info(cdsuParams.LINE)
 	
-	## Go!
-	if not abort:
-		try:
-			run_cdsupdate( logs , **kwargs )
-		finally:
-			if not kwargs["keep_tmp"]:
-				for f in os.listdir(kwargs["tmp"]):
-					rmdirs( os.path.join(kwargs["tmp"],f) )
+	## Package version
+	pkgs = [("numpy"      , np ),
+	        ("pandas"     , pd ),
+	        ("xarray"     , xr ),
+	        ("netCDF4"    , netCDF4 )
+	       ]
+	
+	logger.info( "Packages version:" )
+	logger.info( " * {:{fill}{align}{n}}".format( "CDSupdate" , fill = " " , align = "<" , n = 12 ) + f"version {version}" )
+	for name_pkg,pkg in pkgs:
+		logger.info( " * {:{fill}{align}{n}}".format( name_pkg , fill = " " , align = "<" , n = 12 ) +  f"version {pkg.__version__}" )
+	logger.info(cdsuParams.LINE)
+	
+	## Serious functions start here
+	try:
+		## Check inputs
+		cdsuParams.check()
+		
+		## Init temporary
+		cdsuParams.init_tmp()
+		
+		## List of all input
+		logger.info("Input parameters:")
+		for key in cdsuParams.keys():
+			if key in ["LINE"]: continue
+			logger.info( " * {:{fill}{align}{n}}".format( key , fill = " ",align = "<" , n = 10 ) + ": {}".format(cdsuParams[key]) )
+		logger.info(cdsuParams.LINE)
+		
+		## If abort, stop execution
+		if cdsuParams.abort:
+			raise cdsuParams.error
+		
+		## Go
+		run_cdsupdate()
+		
+	except AbortForHelpException:
+		pass
+	except Exception as e:
+		logger.error( f"Error: {e}" )
 	
 	## End
-	cputime1  = systime.process_time()
 	walltime1 = dt.datetime.utcnow()
-	logs.write( "End: {}".format(str(walltime1)[:19] + " (UTC)") )
-	logs.write( "Wall time: {}".format(walltime1 - walltime0) )
-	logs.write( "CPU time : {}".format(dt.timedelta(seconds = cputime1 - cputime0)) )
-	logs.writeline()
+	logger.info(cdsuParams.LINE)
+	logger.info( "End: {}".format(str(walltime1)[:19] + " (UTC)") )
+	logger.info( "Wall time: {}".format(walltime1 - walltime0) )
+	logger.info(cdsuParams.LINE)
 ##}}}
 

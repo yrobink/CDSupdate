@@ -1,5 +1,5 @@
 
-## Copyright(c) 2022 Yoann Robin
+## Copyright(c) 2022, 2023 Yoann Robin
 ## 
 ## This file is part of CDSupdate.
 ## 
@@ -27,14 +27,15 @@ from .__release import license_txt
 from .__release import src_url
 from .__release import authors_doc
 
-from .__CDSparams import CDSparams
+from .__CDSParams import cdsParams
+
 
 ###############
 ## Variables ##
 ###############
 
 area_description = "\n".join(
-["- {:{fill}{align}{n}}: ".format(f"'{area_name}'",fill="",align="<",n=16) + "{}".format(",".join([str(x) for x in CDSparams.available_area[area_name]])) for area_name in CDSparams.available_area]
+["- {:{fill}{align}{n}}: ".format(f"'{area_name}'",fill="",align="<",n=16) + "{}".format(",".join([str(x) for x in cdsParams.available_area[area_name]])) for area_name in cdsParams.available_area]
 )
 
 doc = """\
@@ -102,7 +103,7 @@ Sources   : {}
 Author(s) : {}
 """.format( version , "=" * (12+len(version)) ,
             long_description,
-            ", ".join([f"'{s}'" for s in CDSparams.available_vars]),
+            ", ".join([f"'{s}'" for s in cdsParams.available_cvars]),
             area_description,
             license , "-" * ( 8 + len(license) ) , license_txt ,
             src_url , authors_doc )

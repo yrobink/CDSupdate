@@ -1,5 +1,5 @@
 
-## Copyright(c) 2022 Yoann Robin
+## Copyright(c) 2022, 2023 Yoann Robin
 ## 
 ## This file is part of CDSupdate.
 ## 
@@ -18,9 +18,9 @@
 
 
 version_major = "0"
-version_minor = "1"
-version_patch = "3"
-version_extra = ""
+version_minor = "2"
+version_patch = "0"
+version_extra = "a2"
 version       = f"{version_major}.{version_minor}.{version_patch}{version_extra}"
 
 name = "CDSupdate"
@@ -40,7 +40,7 @@ src_url = "https://github.com/yrobink/CDSupdate"
 
 license = "GNU-GPL3"
 license_txt = """\
-Copyright(c) 2022 Yoann Robin
+Copyright(c) 2022, 2023 Yoann Robin
 
 This file is part of CDSupdate.
 

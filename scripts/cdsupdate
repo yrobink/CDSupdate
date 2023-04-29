@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-## Copyright(c) 2022 Andreia Hisi, Yoann Robin
+## Copyright(c) 2022, 2023 Yoann Robin
 ## 
 ## This file is part of CDSupdate.
 ## 
@@ -27,5 +27,5 @@ from CDSupdate import start_cdsupdate
 
 if __name__ == "__main__":
 	
-	start_cdsupdate(sys.argv)
+	start_cdsupdate(sys.argv[1:])
 	

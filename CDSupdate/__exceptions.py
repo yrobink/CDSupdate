@@ -1,5 +1,5 @@
 
-## Copyright(c) 2022 Yoann Robin
+## Copyright(c) 2022, 2023 Yoann Robin
 ## 
 ## This file is part of CDSupdate.
 ## 
@@ -16,12 +16,8 @@
 ## You should have received a copy of the GNU General Public License
 ## along with CDSupdate.  If not, see <https://www.gnu.org/licenses/>.
 
-class CDSInputPeriodSizeError(Exception):
-	def __init__( self ):
-		super().__init__()
-
-class CDSInputPeriodOrderError(Exception):
-	def __init__( self ):
-		super().__init__()
+class AbortForHelpException(Exception):
+	def __init__( self , *args , **kwargs ):
+		super().__init__( *args , **kwargs )
 
 

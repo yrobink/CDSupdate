@@ -33,12 +33,12 @@ class CDSParams:##{{{
 		self.cvar_tab = pd.read_csv( os.path.join( cpath , "data" , "ERA5-name.csv" ) , keep_default_na = False )
 		
 		## List of available variables
-		self.available_vars = self.cvar_tab["AMIP"].values.tolist()
-		if "tas" in self.available_vars:
-			self.available_vars.append("tasmax")
-			self.available_vars.append("tasmin")
-		self.available_vars = list(set(self.available_vars))
-		self.available_vars.sort()
+		self.available_cvars = self.cvar_tab["AMIP"].values.tolist()
+		if "tas" in self.available_cvars:
+			self.available_cvars.append("tasmax")
+			self.available_cvars.append("tasmin")
+		self.available_cvars = list(set(self.available_cvars))
+		self.available_cvars.sort()
 		
 		## Conversion
 		self.AMIP_ERA5 = { str(self.cvar_tab.loc[i,"AMIP"]) : str(self.cvar_tab.loc[i,"ERA5"]) for i in range(self.cvar_tab.shape[0]) }
@@ -48,7 +48,7 @@ class CDSParams:##{{{
 		
 		## Now read description
 		self.description = {}
-		for cvar in self.available_vars:
+		for cvar in self.available_cvars:
 			try:
 				with open( os.path.join( cpath , "data" , f"ERA5-{cvar}-description.txt" ) , "r" ) as f:
 					self.description[cvar] = "".join(f.readlines()).replace("\n","")
@@ -63,28 +63,36 @@ class CDSParams:##{{{
 			self.available_area[str(self.areas_tab.iloc[i,0])] = [float(x) for x in self.areas_tab.iloc[i,1:].values.tolist()]
 	##}}}
 	
+	##{{{
+	def __repr__(self):
+		return self.__str__()
+	
+	def __str__(self):
+		return "CDSParams"
+	##}}}
+	
 	def level( self , cvar ):##{{{
 		tab   = self.cvar_tab.copy()
 		tab.index = tab["AMIP"]
 		return tab.loc[cvar,"level"]
 	##}}}
 	
-	def level_value( self , cvar ):##{{{
+	def height( self , cvar ):##{{{
 		tab   = self.cvar_tab.copy()
 		tab.index = tab["AMIP"]
-		return tab.loc[cvar,"level_value"]
+		return tab.loc[cvar,"height"]
 	##}}}
 	
-	def attrs( self , cvar , freq = "hourly" ):##{{{
+	def attrs( self , cvar ):##{{{
 		
 		attrs = {}
 		tab   = self.cvar_tab.copy()
 		tab.index = tab["AMIP"]
 		
 		attrs["standard_name"] = tab.loc[cvar]["standard_name"]
-		attrs["long_name"]     = tab.loc[cvar][f"{freq}_long_name"]
+		attrs["long_name"]     = tab.loc[cvar][f"long_name"]
 		attrs["units"]         = tab.loc[cvar]["units"]
-		attrs["comment"]       = tab.loc[cvar][f"{freq}_comment"]
+		attrs["comment"]       = tab.loc[cvar][f"comment"]
 		attrs["CDS_name"]      = tab.loc[cvar]["CDS"]
 		attrs["ERA5_name"]     = tab.loc[cvar]["ERA5"]
 		attrs["description"]   = self.description[cvar]
