@@ -17,10 +17,10 @@
 ## along with CDSupdate.  If not, see <https://www.gnu.org/licenses/>.
 
 
-version_major = "0"
-version_minor = "2"
+version_major = "1"
+version_minor = "0"
 version_patch = "0"
-version_extra = "a2"
+version_extra = "r0"
 version       = f"{version_major}.{version_minor}.{version_patch}{version_extra}"
 
 name = "CDSupdate"
