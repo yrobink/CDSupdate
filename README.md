@@ -9,7 +9,7 @@ Data Store. Currently, only ERA5 is supported.
 CDSupdate requires the following packages:
 
 - `numpy`
-- `scipy`
+- `pandas`
 - `xarray`
 - `netCDF4`
 - `cftime`
@@ -17,18 +17,6 @@ CDSupdate requires the following packages:
 - `windows-curses` (only for Microsoft Windows users)
 
 Just run with python:
-
-~~~shell
-python3 setup.py install
-~~~
-
-Or (for user only installation):
-
-~~~shell
-python3 setup.py install --user
-~~~
-
-Or 
 
 ~~~shell
 pip3 install .
@@ -46,17 +34,16 @@ cdsupdate --help
 ~~~
 
 As example, to download the daily mean temperature over the North Atlantic
-(80W-50E,5N,72N) between 2019-11-09 and 2022-01-17 in the directory `odir` (and
-`tmp` is used as temporary dir), just run:
+(80W-50E,5N,72N) between 2019-11-09 and 2022-01-17 in the directory `odir`, just run:
 
 ~~~shell
-cdsupdate --log test.log --period 2019-11-09/2022-01-17 --var tas --area NorthAtlantic --odir odir --tmpdir tmp
+cdsupdate --log info test.log --period 2019-11-09/2022-01-17 --cvar tas --area NorthAtlantic --odir odir
 ~~~
 
 
 ## License
 
-Copyright(c) 2022 Yoann Robin
+Copyright(c) 2022, 2023 Yoann Robin
 
 This file is part of CDSupdate.
 

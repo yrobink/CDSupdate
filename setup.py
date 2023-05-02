@@ -1,5 +1,5 @@
 
-## Copyright(c) 2022 Yoann Robin
+## Copyright(c) 2022, 2023 Yoann Robin
 ## 
 ## This file is part of CDSupdate.
 ## 
@@ -29,7 +29,7 @@ author           = ", ".join(authors)
 author_email     = ", ".join(authors_email)
 #package_dir      = { "CDSupdate" : os.path.join( cpath , "CDSupdate" ) }
 package_dir      = { "CDSupdate" : "CDSupdate" }
-requires         = [ "numpy" , "scipy" , "xarray" , "netCDF4" , "cftime" , "cdsapi" ]
+requires         = [ "numpy" , "pandas" , "xarray" , "netCDF4" , "cftime" , "cdsapi" ]
 scripts          = ["scripts/cdsupdate"]
 keywords         = ["Climate Data Store","Auto update"]
 platforms        = ["linux","macosx"]
