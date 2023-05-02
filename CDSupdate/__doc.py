@@ -82,8 +82,8 @@ You can pass a box, or the following keywords:
 
 Examples
 --------
-cdsupdate --log info --period 2022-01-01/2023-04-14 --cvar tas,pr --keep-hourly --area NorthAtlantic      --output-dir <ERA5_dir> ## Change <ERA5_dir> for a directory
-cdsupdate --log info --period 2022-01-01/2023-04-14 --cvar tas,pr --keep-hourly --area France,-5,10,41,52 --output-dir <ERA5_dir> ## Change <ERA5_dir> for a directory
+cdsupdate --log info --period 2022-01-01/2023-04-14 --cvar tas,pr,zg500 --keep-hourly --area NorthAtlantic      --output-dir <ERA5_dir> ## Change <ERA5_dir> for a directory
+cdsupdate --log info --period 2022-01-01/2023-04-14 --cvar tas,pr,zg500 --keep-hourly --area France,-5,10,41,52 --output-dir <ERA5_dir> ## Change <ERA5_dir> for a directory
 
 License {}
 {}
@@ -102,18 +102,26 @@ Author(s) : {}
             license , "-" * ( 8 + len(license) ) , license_txt ,
             src_url , authors_doc )
 
+line_length = 80
+line_cut    = 30
 lines = []
 for line in doc.split("\n"):
-	if len(line) < 80:
+	if len(line) < line_length:
 		lines.append(line)
 	else:
-		lines.append(line[:80])
-		res = line[80:]
-		while len(res) > 30:
-			ex = res[:30]
-			lines.append( " " * (79 - len(ex)) + ex )
-			res = res[30:]
-		lines.append( " " * (79 - len(res)) + res )
+		b = line_length
+		while not line[b] == " ":
+		 b = b - 1
+		lines.append(line[:b])
+		res = line[b:]
+		while len(res) > line_cut:
+			b = line_cut
+			while not res[b] == " ":
+				b = b - 1
+			ex = res[:b]
+			lines.append( " " * (line_length - 1 - len(ex)) + ex )
+			res = res[b:]
+		lines.append( " " * (line_length - 1 - len(res)) + res )
 
 doc = "\n".join(lines)
 
