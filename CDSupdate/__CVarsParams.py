@@ -17,6 +17,7 @@
 ## along with CDSupdate.  If not, see <https://www.gnu.org/licenses/>.
 
 import os
+import re
 import pandas as pd
 
 
@@ -81,21 +82,17 @@ class CVarsParams:##{{{
 	##}}}
 	
 	def removeLevel( self , cvar ):##{{{
-		for lev in self._avail_levels:
-			if lev in cvar:
-				return cvar.replace(lev,"")
-		
-		return cvar
+		c,l = self.split_level(cvar)
+		return c
 	##}}}
 	
 	def split_level( self , cvar ):##{{{
 		
-		for lev in self._avail_levels:
-			if lev in cvar:
-				return cvar.replace(lev,""),lev
+		level = re.findall( r'\d+' , cvar )
+		if len(level) == 0:
+			return cvar,"single"
 		
-		return cvar,"single"
-		
+		return cvar.replace(level[0],""),level[0]
 	##}}}
 	
 	def is_available( self , cvar ):##{{{
