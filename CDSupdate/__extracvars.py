@@ -47,12 +47,13 @@ logger.addHandler(logging.NullHandler())
 ## Functions ##
 ###############
 
-def build_tasmin_tasmax():##{{{
+def build_tasmin():##{{{
 	
 	area_name = cdsuParams.area_name
 	ipath  = os.path.join( cdsuParams.tmp , "ERA5-AMIP" , "hr" , "tas" )
 	ifiles = os.listdir(ipath)
 	ifiles.sort()
+	cvar = "tasmin"
 	
 	for ifile in ifiles:
 		
@@ -60,27 +61,48 @@ def build_tasmin_tasmax():##{{{
 		year  = idata.time.dt.year[0].values
 		dtime = [dt.datetime(int(year),1,1) + dt.timedelta( days = int(i) - 1 ) for i in np.unique(idata.time.dt.dayofyear.values)]
 		
-		## Loop for min max
-		for sup in ["min","max"]:
-			
-			cvar = "tas" + sup
-			
-			## Build daily variable
-			if sup == "min":
-				ddata = idata.groupby("time.dayofyear").min().rename( dayofyear = "time" ).assign_coords( time = dtime ).rename( { "tas" : cvar } )
-			else:
-				ddata = idata.groupby("time.dayofyear").max().rename( dayofyear = "time" ).assign_coords( time = dtime ).rename( { "tas" : cvar } )
-			
-			## Save daily variable
-			opath = os.path.join( cdsuParams.tmp , "ERA5-AMIP" , "day" , cvar )
-			t0    = str(ddata.time[ 0].values)[:10].replace("-","").replace(" ","").replace("T","")
-			t1    = str(ddata.time[-1].values)[:10].replace("-","").replace(" ","").replace("T","")
-			ofile = f"ERA5-AMIP_{cvar}_day_{area_name}_{t0}-{t1}.nc"
-			target = os.path.join( opath , ofile )
-			if not os.path.isdir(opath):
-				os.makedirs(opath)
-			logger.info( f" * Save 'TMP/ERA5-AMIP/day/{cvar}/{ofile}'" )
-			ddata.to_netcdf( os.path.join( opath , ofile ) )
+		## Build daily variable
+		ddata = idata.groupby("time.dayofyear").min().rename( dayofyear = "time" ).assign_coords( time = dtime ).rename( { "tas" : cvar } )
+		
+		## Save daily variable
+		opath = os.path.join( cdsuParams.tmp , "ERA5-AMIP" , "day" , cvar )
+		t0    = str(ddata.time[ 0].values)[:10].replace("-","").replace(" ","").replace("T","")
+		t1    = str(ddata.time[-1].values)[:10].replace("-","").replace(" ","").replace("T","")
+		ofile = f"ERA5-AMIP_{cvar}_day_{area_name}_{t0}-{t1}.nc"
+		target = os.path.join( opath , ofile )
+		if not os.path.isdir(opath):
+			os.makedirs(opath)
+		logger.info( f" * Save 'TMP/ERA5-AMIP/day/{cvar}/{ofile}'" )
+		ddata.to_netcdf( os.path.join( opath , ofile ) )
+##}}}
+
+def build_tasmax():##{{{
+	
+	area_name = cdsuParams.area_name
+	ipath  = os.path.join( cdsuParams.tmp , "ERA5-AMIP" , "hr" , "tas" )
+	ifiles = os.listdir(ipath)
+	ifiles.sort()
+	cvar = "tasmax"
+	
+	for ifile in ifiles:
+		
+		idata = xr.open_dataset( os.path.join( ipath , ifile ) )
+		year  = idata.time.dt.year[0].values
+		dtime = [dt.datetime(int(year),1,1) + dt.timedelta( days = int(i) - 1 ) for i in np.unique(idata.time.dt.dayofyear.values)]
+		
+		## Build daily variable
+		ddata = idata.groupby("time.dayofyear").max().rename( dayofyear = "time" ).assign_coords( time = dtime ).rename( { "tas" : cvar } )
+		
+		## Save daily variable
+		opath = os.path.join( cdsuParams.tmp , "ERA5-AMIP" , "day" , cvar )
+		t0    = str(ddata.time[ 0].values)[:10].replace("-","").replace(" ","").replace("T","")
+		t1    = str(ddata.time[-1].values)[:10].replace("-","").replace(" ","").replace("T","")
+		ofile = f"ERA5-AMIP_{cvar}_day_{area_name}_{t0}-{t1}.nc"
+		target = os.path.join( opath , ofile )
+		if not os.path.isdir(opath):
+			os.makedirs(opath)
+		logger.info( f" * Save 'TMP/ERA5-AMIP/day/{cvar}/{ofile}'" )
+		ddata.to_netcdf( os.path.join( opath , ofile ) )
 ##}}}
 
 def build_sfcWind():##{{{
@@ -135,17 +157,18 @@ def build_sfcWind():##{{{
 	cdsuParams.cvars.append("sfcWind")
 ##}}}
 
-
 def build_EXTRA_cvars():##{{{
 	
-	cvars = cdsuParams.cvars
-	if "tas" in cvars:
-		logger.info( "Build EXTRA cvars 'tasmin' and 'tasmax'" )
-		build_tasmin_tasmax()
-	
-	if "uas" in cvars:
-		logger.info( "Build EXTRA cvars 'sfcWind'" )
-		build_sfcWind()
+	cvars_cmp = cdsuParams.cvars_cmp
+	for cvar in cvars_cmp:
+		logger.info( f"Build EXTRA cvar '{cvar}'" )
+		
+		if cvar == "tasmin":
+			build_tasmin()
+		if cvar == "tasmax":
+			build_tasmax()
+		if cvar == "sfcWind":
+			build_sfcWind()
 	
 ##}}}
 

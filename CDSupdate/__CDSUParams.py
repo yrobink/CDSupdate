@@ -37,8 +37,8 @@ import pandas as pd
 
 from .__exceptions  import AbortForHelpException
 
-from .__CDSParams import CDSParams
-from .__CDSParams import cdsParams
+from .__CVarsParams import CVarsParams
+from .__CVarsParams import cvarsParams
 
 
 ###############
@@ -60,14 +60,16 @@ class CDSUParams:
 	tmp      : str | None                         = None
 	
 	cvars       : str | list[str] | None = None
-	level       : str | float             = "single"
+	cvars_dwl   : str | list[str] | None = None
+	cvars_cmp   : str | list[str] | None = None
+	cvars_lev   : str | list[str] | None = None
 	area        : str             | None = None
 	area_name   : str             | None = None
 	period      : str             | None = None
 	output_dir  : str             | None = None
 	keep_hourly : bool                   = False
 	
-	cdsParams    : CDSParams   = cdsParams
+	cvarsParams  : CVarsParams   = cvarsParams
 	cdsApiParams : dict | None = None
 	
 	def init_from_user_input( self , *argv ):##{{{
@@ -89,8 +91,7 @@ class CDSUParams:
 		parser.add_argument( "--cvars"  , default = None )
 		parser.add_argument( "--area"   , default = None )
 		parser.add_argument( "--period" , default = None )
-		parser.add_argument( "--level"  , default = "single" )
-		parser.add_argument( "--output-dir"       , "-odir"  , "-oZ" , default = None )
+		parser.add_argument( "--output-dir"  , default = None )
 		parser.add_argument( "--keep-hourly" , action = "store_const" , const = True , default = False )
 		
 		## Transform in dict
@@ -186,22 +187,12 @@ class CDSUParams:
 				raise Exception( f"List of climate variables is empty" )
 			self.cvars = self.cvars.split(",")
 			for cvar in self.cvars:
-				if cvar not in self.cdsParams.available_cvars:
+				if not self.cvarsParams.is_available(cvar):
 					raise Exception( f"The cvar {cvar} is not supported" )
-			
-			## Specific case: tas => imply tasmin + tasmax
-			for cvar in ["tasmin","tasmax"]:
-				if cvar in self.cvars:
-					self.cvars[self.cvars.index(cvar)] = "tas"
-			
-			## Specific case: wind component are all downloaded if one is requested
-			if "uas" in self.cvars or "vas" in self.cvars or "sfcWind" in self.cvars:
-				self.cvars.append("uas")
-				self.cvars.append("vas")
-			if "sfcWind" in self.cvars:
-				self.cvars[self.cvars.index("sfcWind")] = "uas"
-			self.cvars = list(set(self.cvars))
-			self.cvars.sort()
+			dwl,cmp,lev = self.cvarsParams.cvars_from_request(self.cvars)
+			self.cvars_dwl = dwl
+			self.cvars_cmp = cmp
+			self.cvars_lev = lev
 			
 			## The area
 			if self.area is None:
@@ -226,16 +217,6 @@ class CDSUParams:
 			if self.area_name is None:
 				lon0,lon1,lat0,lat1 = self.area
 				self.area_name = "area-{:,g}-{:,g}-{:,g}-{:,g}".format(lon0+180,lon1+180,lat0+90,lat1+90)
-			
-			## The level
-			if self.level == "single":
-				self.height = "none"
-			else:
-				try:
-					self.height = float(self.level)
-					self.level  = "pressure"
-				except:
-					raise Exception("Pressure level not castable to float")
 			
 			## And finally the period
 			if self.period is None:

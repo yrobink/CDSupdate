@@ -71,7 +71,8 @@ def load_data_CDS():##{{{
 	           }
 	
 	## List of climate vars
-	cvars = cdsuParams.cvars
+	cvars_dwl = cdsuParams.cvars_dwl
+	cvars_lev = cdsuParams.cvars_lev
 	
 	## cdsapi client params
 	cdskey = None
@@ -79,37 +80,40 @@ def load_data_CDS():##{{{
 	cdsverify = None
 	
 	## Now loop on cvar for download
-	for cvar in cvars:
+	for cvar,level in zip(cvars_dwl,cvars_lev):
 		
-		logger.info( f"Start download {cvar}" )
+		logger.info( f"Start download {cvar} ({level})" )
 		
 		## Find the level (surface or pressure level)
-		level = cdsuParams.cdsParams.level(cvar)
 		logger.info( f" * Level: {level}" )
 		
 		## Build name
-		name  = f"reanalysis-era5-{level}-levels"
+		if level == "single":
+			name  = f"reanalysis-era5-{level}-levels"
+		else:
+			name  = f"reanalysis-era5-pressure-levels"
 		
 		for key in cdsuParams.cdsApiParams:
 			
 			## Build request
 			cap = cdsuParams.cdsApiParams[key]
 			request = { **request_base , **cap }
-			request["variable"] = cdsuParams.cdsParams.AMIP_CDS[cvar]
+			request["variable"] = cdsuParams.cvarsParams.AMIP_CDS[cvar]
 			
-			if cdsuParams.level == "pressure":
-				h = "{:,g}".format(cdsuParams.height)
-				request["pressure_level"] = h
+			h = ""
+			if not level == "single":
+				h = level
+				request["pressure_level"] = level
 			
 			## Build target
-			opath = os.path.join( cdsuParams.tmp , "ERA5-BRUT" , "hr" , cvar )
-			ofile = f"ERA5-BRUT_{cvar}_hr_{area_name}_{key[0].replace('-','')}-{key[1].replace('-','')}.nc"
+			opath = os.path.join( cdsuParams.tmp , "ERA5-BRUT" , "hr" , cvar + h )
+			ofile = f"ERA5-BRUT_{cvar+h}_hr_{area_name}_{key[0].replace('-','')}-{key[1].replace('-','')}.nc"
 			target = os.path.join( opath , ofile )
 			if not os.path.isdir(opath):
 				os.makedirs(opath)
 			
 			## Log
-			logger.info( " * Load '{} / {}' in 'TMP/ERA5-BRUT/hr/".format(*key) + f"{cvar}/" + ofile + "'" )
+			logger.info( " * Load '{} / {}' in 'TMP/ERA5-BRUT/hr/".format(*key) + f"{cvar+h}/" + ofile + "'" )
 			
 			## And run download
 			try:
@@ -128,15 +132,21 @@ def BRUT_to_AMIP_format():##{{{
 	cvars = cdsuParams.cvars
 	area_name = cdsuParams.area_name
 	
+	## List of climate vars
+	cvars_dwl = cdsuParams.cvars_dwl
+	cvars_lev = cdsuParams.cvars_lev
+	
 	## Loop on climate variables
-	for cvar in cvars:
+	for cvar,level in zip(cvars_dwl,cvars_lev):
 		
-		evar = cdsuParams.cdsParams.AMIP_ERA5[cvar]
+		h = "" if level == "single" else level
+		
+		evar = cdsuParams.cvarsParams.AMIP_ERA5[cvar]
 		logger.info( f"BRUT to AMIP:" )
-		logger.info( f" * {evar} to {cvar}" )
+		logger.info( f" * {evar} to {cvar+h}" )
 		
 		## Parameters
-		ipath = os.path.join( cdsuParams.tmp , "ERA5-BRUT" , "hr" , cvar )
+		ipath = os.path.join( cdsuParams.tmp , "ERA5-BRUT" , "hr" , cvar + h )
 		
 		## List files
 		ifiles = os.listdir(ipath)
@@ -162,7 +172,7 @@ def BRUT_to_AMIP_format():##{{{
 			idata = idata.compute()
 			
 			## Reorganize lon / lat axis
-			idata = idata.rename( { "longitude" : "lon" , "latitude" : "lat" , evar : cvar } )
+			idata = idata.rename( { "longitude" : "lon" , "latitude" : "lat" , evar : cvar + h } )
 			idata = idata.assign_coords( lon = idata.lon.where( idata.lon < 180 , idata.lon.values - 360 ) ).sortby("lon").sortby("lat").compute()
 			
 			## Delete last day if all hours are not present
@@ -175,18 +185,18 @@ def BRUT_to_AMIP_format():##{{{
 			## Change scale
 			if cvar in ["zg"]:
 				g = 9.80665
-				idata[cvar] = idata[cvar] / g
+				idata[cvar+h] = idata[cvar+h] / g
 			
 			## Save hourly variable
 			if cdsuParams.keep_hourly:
-				opath = os.path.join( cdsuParams.tmp , "ERA5-AMIP" , "hr" , cvar )
+				opath = os.path.join( cdsuParams.tmp , "ERA5-AMIP" , "hr" , cvar + h )
 				t0    = str(idata.time[ 0].values)[:13].replace("-","").replace(" ","").replace("T","")
 				t1    = str(idata.time[-1].values)[:13].replace("-","").replace(" ","").replace("T","")
-				ofile = f"ERA5-AMIP_{cvar}_hr_{area_name}_{t0}-{t1}.nc"
+				ofile = f"ERA5-AMIP_{cvar+h}_hr_{area_name}_{t0}-{t1}.nc"
 				target = os.path.join( opath , ofile )
 				if not os.path.isdir(opath):
 					os.makedirs(opath)
-				logger.info( f" * Save 'TMP/ERA5-AMIP/hr/{cvar}/{ofile}'" )
+				logger.info( f" * Save 'TMP/ERA5-AMIP/hr/{cvar+h}/{ofile}'" )
 				idata.to_netcdf( os.path.join( opath , ofile ) )
 			
 			## Build daily variable
@@ -194,39 +204,43 @@ def BRUT_to_AMIP_format():##{{{
 			ddata = idata.groupby("time.dayofyear").mean().rename( dayofyear = "time" ).assign_coords( time = dtime )
 			
 			## Save daily variable
-			opath = os.path.join( cdsuParams.tmp , "ERA5-AMIP" , "day" , cvar )
+			opath = os.path.join( cdsuParams.tmp , "ERA5-AMIP" , "day" , cvar + h )
 			t0    = str(ddata.time[ 0].values)[:10].replace("-","").replace(" ","").replace("T","")
 			t1    = str(ddata.time[-1].values)[:10].replace("-","").replace(" ","").replace("T","")
-			ofile = f"ERA5-AMIP_{cvar}_day_{area_name}_{t0}-{t1}.nc"
+			ofile = f"ERA5-AMIP_{cvar+h}_day_{area_name}_{t0}-{t1}.nc"
 			target = os.path.join( opath , ofile )
 			if not os.path.isdir(opath):
 				os.makedirs(opath)
-			logger.info( f" * Save 'TMP/ERA5-AMIP/day/{cvar}/{ofile}'" )
+			logger.info( f" * Save 'TMP/ERA5-AMIP/day/{cvar+h}/{ofile}'" )
 			ddata.to_netcdf( os.path.join( opath , ofile ) )
 ##}}}
 
-def build_gattrs( cvar ): ##{{{
+def build_gattrs( cvar , level ): ##{{{
+	
+	level_name = "single"
+	if not level == "pressure":
+		level_name = "pressure"
 	
 	## Global attributes
 	now    = str(dt.datetime.utcnow())[:19]
 	gattrs = {}
-	gattrs["title"]         = f"reanalysis-era5-{cdsuParams.level}-level"
+	gattrs["title"]         = f"reanalysis-era5-{level_name}-level"
 	gattrs["institution"]   = "ECMWF"
 	gattrs["Conventions"]   = "CF-1.10"
 	gattrs["creation_date"] = now + " (UTC)"
 	
-	gattrs["level"] = cdsuParams.level
-	if cdsuParams.level == "single":
+	gattrs["level"] = level
+	if level == "single":
 		gattrs["source"] = "https://doi.org/10.24381/cds.adbb2d47"
 	else:
 		gattrs["source"] = "https://doi.org/10.24381/cds.bd0915c6"
 	
 	
 	## Reference
-	if cdsuParams.level == "single":
+	if level == "single":
 		ref  ="Hersbach, H., Bell, B., Berrisford, P., Biavati, G., Horányi, A., Muñoz Sabater, J., Nicolas, J., Peubey, C., Radu, R., Rozum, I., Schepers, D., Simmons, A., Soci, C., Dee, D., Thépaut, J-N. (2023): ERA5 hourly data on single levels from 1940 to present. Copernicus Climate Change Service (C3S) Climate Data Store (CDS), DOI: 10.24381/cds.adbb2d47 (Accessed on {})".format(now)
 	else:
-		"Hersbach, H., Bell, B., Berrisford, P., Biavati, G., Horányi, A., Muñoz Sabater, J., Nicolas, J., Peubey, C., Radu, R., Rozum, I., Schepers, D., Simmons, A., Soci, C., Dee, D., Thépaut, J-N. (2023): ERA5 hourly data on pressure levels from 1940 to present. Copernicus Climate Change Service (C3S) Climate Data Store (CDS), DOI: 10.24381/cds.bd0915c6 (Accessed on {})".format(now)
+		ref = "Hersbach, H., Bell, B., Berrisford, P., Biavati, G., Horányi, A., Muñoz Sabater, J., Nicolas, J., Peubey, C., Radu, R., Rozum, I., Schepers, D., Simmons, A., Soci, C., Dee, D., Thépaut, J-N. (2023): ERA5 hourly data on pressure levels from 1940 to present. Copernicus Climate Change Service (C3S) Climate Data Store (CDS), DOI: 10.24381/cds.bd0915c6 (Accessed on {})".format(now)
 	gattrs["references"] = ref
 	
 	## CDSupdate
@@ -238,8 +252,7 @@ def build_gattrs( cvar ): ##{{{
 
 def save_netcdf( idata , cvar , freq , ofile ):##{{{
 	
-	h = "{:,g}".format(cdsuParams.height) if cdsuParams.level == "pressure" else ""
-	
+	avar,level    = cdsuParams.cvarsParams.split_level(cvar)
 	time_units    = "hours since 1900-01-01 00:00"
 	time_calendar = "standard"
 	
@@ -279,7 +292,10 @@ def save_netcdf( idata , cvar , freq , ofile ):##{{{
 		ncv_height.setncattr( "long_name"     , "height" )
 		ncv_height.setncattr( "standard_name" , "height" )
 		ncv_height.setncattr( "positive"      , "up"     )
-		ncv_height.setncattr( "units"         , "m"      )
+		if level == "single":
+			ncv_height.setncattr( "units"         , "m"      )
+		else:
+			ncv_height.setncattr( "units"         , "hPa"    )
 		
 		ncv_time.setncattr( "axis"          , "T"           )
 		ncv_time.setncattr( "long_name"     , "Time Axis"   )
@@ -293,25 +309,27 @@ def save_netcdf( idata , cvar , freq , ofile ):##{{{
 		ncv_time[:]   = cftime.date2num( time , time_units , time_calendar )
 		
 		## Now the main variable
-		ncv_cvar = ncf.createVariable( cvar + h , "float32" , ("time","lat","lon")  , fill_value = np.nan , shuffle = False , compression = "zlib" , complevel = 5 , chunksizes = (1,nlat,nlon) )
+		ncv_cvar = ncf.createVariable( cvar , "float32" , ("time","lat","lon")  , fill_value = np.nan , shuffle = False , compression = "zlib" , complevel = 5 , chunksizes = (1,nlat,nlon) )
 		ncv_cvar[:] = idata[cvar].values
 		
 		## Attributes
-		cvarattrs = cdsuParams.cdsParams.attrs(cvar)
+		cvarattrs = cdsuParams.cvarsParams.attrs(avar)
 		for att in cvarattrs:
-			if att == "long_name" and cdsuParams.level == "pressure":
-				ncv_cvar.setncattr( att , cvarattrs[att].replace("__CHANGE__",h) )
+			if len(cvarattrs[att]) == 0:
+				continue
+			if att == "long_name" and not (level == "single"):
+				ncv_cvar.setncattr( att , cvarattrs[att].replace("__CHANGE__",level) )
 			else:
 				ncv_cvar.setncattr( att , cvarattrs[att] )
 		
 		ncv_cvar.setncattr( "coordinates" , "height lat lon" )
-		if cdsuParams.level == "single":
-			ncv_height[:] = float(cdsuParams.cdsParams.height(cvar))
+		if level == "single":
+			ncv_height[:] = float(cdsuParams.cvarsParams.height(cvar))
 		else:
-			ncv_height[:] = cdsuParams.height
+			ncv_height[:] = float(level)
 		
 		## Add global attrs
-		gattrs = build_gattrs( cvar )
+		gattrs = build_gattrs( cvar , level )
 		for attr in gattrs:
 			ncf.setncattr( attr , gattrs[attr] )
 	
@@ -322,20 +340,19 @@ def merge_AMIP_CF_format():##{{{
 	## Parameters
 	area_name = cdsuParams.area_name
 	
-	##
-	h = "{:,g}".format(cdsuParams.height) if cdsuParams.level == "pressure" else ""
+	## List of cvars
+	cvars = list(cdsuParams.cvars_cmp)
+	for cvar,level in zip(cdsuParams.cvars_dwl,cdsuParams.cvars_lev):
+		if level == "single":
+			cvars.append(cvar)
+		else:
+			cvars.append(cvar + level)
 	
 	## Loop on frequences
 	for freq in ["hr","day"]:
 		
 		if freq == "hr" and not cdsuParams.keep_hourly:
 			continue
-		
-		## cvars
-		cvars = cdsuParams.cvars
-		if "tas" in cvars and not (freq == "hr"):
-			cvars.append("tasmin")
-			cvars.append("tasmax")
 		
 		## Loop on climate variables
 		for cvar in cvars:
@@ -344,7 +361,9 @@ def merge_AMIP_CF_format():##{{{
 			
 			## Path
 			ipath = os.path.join( cdsuParams.tmp        , "ERA5-AMIP" ,             freq , cvar )
-			opath = os.path.join( cdsuParams.output_dir , "ERA5"      , area_name , freq , cvar + h )
+			if not os.path.isdir(ipath):
+				continue
+			opath = os.path.join( cdsuParams.output_dir , "ERA5"      , area_name , freq , cvar )
 			if not os.path.isdir(opath):
 				os.makedirs(opath)
 			
@@ -374,7 +393,7 @@ def merge_AMIP_CF_format():##{{{
 					idataN = xr.open_dataset( os.path.join( ipath , ifileN ) )
 					t0    = str(idataN.time[ 0].values)[:10].replace("-","").replace(" ","").replace("T","")
 					t1    = str(idataN.time[-1].values)[:10].replace("-","").replace(" ","").replace("T","")
-					ofile  = f"ERA5_{cvar+h}_{freq}_{area_name}_{t0}-{t1}.nc"
+					ofile  = f"ERA5_{cvar}_{freq}_{area_name}_{t0}-{t1}.nc"
 					logger.info( f" * Save '{ofile}'" )
 					save_netcdf( idataN , cvar , freq , os.path.join( opath , ofile ) )
 				
@@ -391,7 +410,7 @@ def merge_AMIP_CF_format():##{{{
 					
 					t0    = str(idata.time[ 0].values)[:10].replace("-","").replace(" ","").replace("T","")
 					t1    = str(idata.time[-1].values)[:10].replace("-","").replace(" ","").replace("T","")
-					ofile  = f"ERA5_{cvar+h}_{freq}_{area_name}_{t0}-{t1}.nc"
+					ofile  = f"ERA5_{cvar}_{freq}_{area_name}_{t0}-{t1}.nc"
 					logger.info( f" * Save '{ofile}'" )
 					save_netcdf( idata , cvar , freq , os.path.join( opath , ofile ) )
 ##}}}

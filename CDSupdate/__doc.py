@@ -27,7 +27,7 @@ from .__release import license_txt
 from .__release import src_url
 from .__release import authors_doc
 
-from .__CDSParams import cdsParams
+from .__CVarsParams import cvarsParams
 
 
 ###############
@@ -35,7 +35,7 @@ from .__CDSParams import cdsParams
 ###############
 
 area_description = "\n".join(
-["- {:{fill}{align}{n}}: ".format(f"'{area_name}'",fill="",align="<",n=16) + "{}".format(",".join([str(x) for x in cdsParams.available_area[area_name]])) for area_name in cdsParams.available_area]
+["- {:{fill}{align}{n}}: ".format(f"'{area_name}'",fill="",align="<",n=16) + "{}".format(",".join([str(x) for x in cvarsParams.available_area[area_name]])) for area_name in cvarsParams.available_area]
 )
 
 doc = """\
@@ -68,9 +68,12 @@ Input parameters
 
 About the variables
 -------------------
-- Original data being at hourly scale, use 'tas', 'tasmin' or 'tasmax'  as var
-  updates the three.
-- Current variables supported: {}.
+- Current single level variable supported:
+  {}
+- Current pressure level variable supported:
+  {}
+- Pressure level supported:
+  {}
 
 About the area
 --------------
@@ -92,8 +95,25 @@ Sources   : {}
 Author(s) : {}
 """.format( version , "=" * (12+len(version)) ,
             long_description,
-            ", ".join([f"'{s}'" for s in cdsParams.available_cvars]),
+            ", ".join([f"'{s}'" for s in cvarsParams.all_cvars if cvarsParams.level(s) == "single"]),
+            ", ".join([f"'{s}'" for s in cvarsParams.all_cvars if not cvarsParams.level(s) == "single"]),
+            ", ".join([f"'{s}'" for s in cvarsParams._avail_levels]),
             area_description,
             license , "-" * ( 8 + len(license) ) , license_txt ,
             src_url , authors_doc )
+
+lines = []
+for line in doc.split("\n"):
+	if len(line) < 80:
+		lines.append(line)
+	else:
+		lines.append(line[:80])
+		res = line[80:]
+		while len(res) > 30:
+			ex = res[:30]
+			lines.append( " " * (79 - len(ex)) + ex )
+			res = res[30:]
+		lines.append( " " * (79 - len(res)) + res )
+
+doc = "\n".join(lines)
 
