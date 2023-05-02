@@ -71,6 +71,23 @@ class CDSParams:##{{{
 		return "CDSParams"
 	##}}}
 	
+	def cvar_available( self , cvar ):##{{{
+		
+		if cvar in self.available_cvars:
+			return True
+		
+		if self.level(cvar) == "single":
+			return False
+		
+		for avar in self.available_cvars:
+			if self.level(avar) == "single":
+				continue
+			if avar in cvar:
+				return True
+		
+		return False
+		##}}}
+	
 	def level( self , cvar ):##{{{
 		tab   = self.cvar_tab.copy()
 		tab.index = tab["AMIP"]
@@ -103,4 +120,6 @@ class CDSParams:##{{{
 ##}}}
 
 cdsParams = CDSParams()
+
+
 
