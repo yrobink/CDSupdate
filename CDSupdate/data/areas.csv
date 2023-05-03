@@ -1,5 +1,5 @@
 zone,lon_min,lon_max,lat_min,lat_max
-World,-180,180,-90,90
+Global,-180,180,-90,90
 Europe,-25,40,34,72
 NorthAtlantic,-80,50,5,72
 NorthAmerica,-150,-60,30,80
