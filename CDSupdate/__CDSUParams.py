@@ -203,9 +203,9 @@ class CDSUParams:
 				self.area      = self.area[1:]
 			elif len(self.area) == 1:
 				self.area_name = self.area[0]
-				if not self.area_name in self.cdsParams.available_area:
+				if not self.area_name in self.cvarsParams.available_area:
 					raise Exception( f"Area {self.area_name} is not available" )
-				self.area = self.cdsParams.available_area[self.area_name]
+				self.area = self.cvarsParams.available_area[self.area_name]
 			elif not len(self.area) == 4:
 				raise Exception( f"Invalid format for area!")
 			
