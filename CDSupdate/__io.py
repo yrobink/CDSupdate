@@ -187,17 +187,16 @@ def BRUT_to_AMIP_format():##{{{
 				g = 9.80665
 				idata[cvar+h] = idata[cvar+h] / g
 			
-			## Save hourly variable
-			if cdsuParams.keep_hourly:
-				opath = os.path.join( cdsuParams.tmp , "ERA5-AMIP" , "hr" , cvar + h )
-				t0    = str(idata.time[ 0].values)[:13].replace("-","").replace(" ","").replace("T","")
-				t1    = str(idata.time[-1].values)[:13].replace("-","").replace(" ","").replace("T","")
-				ofile = f"ERA5-AMIP_{cvar+h}_hr_{area_name}_{t0}-{t1}.nc"
-				target = os.path.join( opath , ofile )
-				if not os.path.isdir(opath):
-					os.makedirs(opath)
-				logger.info( f" * Save 'TMP/ERA5-AMIP/hr/{cvar+h}/{ofile}'" )
-				idata.to_netcdf( os.path.join( opath , ofile ) )
+			## Transform hourly variable
+			opath = os.path.join( cdsuParams.tmp , "ERA5-AMIP" , "hr" , cvar + h )
+			t0    = str(idata.time[ 0].values)[:13].replace("-","").replace(" ","").replace("T","")
+			t1    = str(idata.time[-1].values)[:13].replace("-","").replace(" ","").replace("T","")
+			ofile = f"ERA5-AMIP_{cvar+h}_hr_{area_name}_{t0}-{t1}.nc"
+			target = os.path.join( opath , ofile )
+			if not os.path.isdir(opath):
+				os.makedirs(opath)
+			logger.info( f" * Save 'TMP/ERA5-AMIP/hr/{cvar+h}/{ofile}'" )
+			idata.to_netcdf( os.path.join( opath , ofile ) )
 			
 			## Build daily variable
 			dtime = [dt.datetime(int(year),1,1) + dt.timedelta( days = int(i) - 1 ) for i in np.unique(idata.time.dt.dayofyear.values)]

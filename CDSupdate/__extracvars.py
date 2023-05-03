@@ -133,16 +133,15 @@ def build_sfcWind():##{{{
 		odatad = odatah.groupby("time.dayofyear").mean().rename( dayofyear = "time" ).assign_coords( time = dtime )
 		
 		## Save hourly
-		if cdsuParams.keep_hourly:
-			opath = os.path.join( cdsuParams.tmp , "ERA5-AMIP" , "hr" , "sfcWind" )
-			t0    = str(odatah.time[ 0].values)[:13].replace("-","").replace(" ","").replace("T","")
-			t1    = str(odatah.time[-1].values)[:13].replace("-","").replace(" ","").replace("T","")
-			ofile = f"ERA5-AMIP_sfcWind_hr_{area_name}_{t0}-{t1}.nc"
-			target = os.path.join( opath , ofile )
-			if not os.path.isdir(opath):
-				os.makedirs(opath)
-			logger.info( f" * Save 'TMP/ERA5-AMIP/hr/sfcWind/{ofile}'" )
-			odatah.to_netcdf( os.path.join( opath , ofile ) )
+		opath = os.path.join( cdsuParams.tmp , "ERA5-AMIP" , "hr" , "sfcWind" )
+		t0    = str(odatah.time[ 0].values)[:13].replace("-","").replace(" ","").replace("T","")
+		t1    = str(odatah.time[-1].values)[:13].replace("-","").replace(" ","").replace("T","")
+		ofile = f"ERA5-AMIP_sfcWind_hr_{area_name}_{t0}-{t1}.nc"
+		target = os.path.join( opath , ofile )
+		if not os.path.isdir(opath):
+			os.makedirs(opath)
+		logger.info( f" * Save 'TMP/ERA5-AMIP/hr/sfcWind/{ofile}'" )
+		odatah.to_netcdf( os.path.join( opath , ofile ) )
 		
 		## Save daily
 		opath = os.path.join( cdsuParams.tmp , "ERA5-AMIP" , "day" , "sfcWind" )
@@ -188,16 +187,15 @@ def build_hurs():##{{{
 		odatad = odatah.groupby("time.dayofyear").mean().rename( dayofyear = "time" ).assign_coords( time = dtime )
 		
 		## Save hourly
-		if cdsuParams.keep_hourly:
-			opath = os.path.join( cdsuParams.tmp , "ERA5-AMIP" , "hr" , cvar )
-			t0    = str(odatah.time[ 0].values)[:13].replace("-","").replace(" ","").replace("T","")
-			t1    = str(odatah.time[-1].values)[:13].replace("-","").replace(" ","").replace("T","")
-			ofile = f"ERA5-AMIP_{cvar}_hr_{area_name}_{t0}-{t1}.nc"
-			target = os.path.join( opath , ofile )
-			if not os.path.isdir(opath):
-				os.makedirs(opath)
-			logger.info( f" * Save 'TMP/ERA5-AMIP/hr/{cvar}/{ofile}'" )
-			odatah.to_netcdf( os.path.join( opath , ofile ) )
+		opath = os.path.join( cdsuParams.tmp , "ERA5-AMIP" , "hr" , cvar )
+		t0    = str(odatah.time[ 0].values)[:13].replace("-","").replace(" ","").replace("T","")
+		t1    = str(odatah.time[-1].values)[:13].replace("-","").replace(" ","").replace("T","")
+		ofile = f"ERA5-AMIP_{cvar}_hr_{area_name}_{t0}-{t1}.nc"
+		target = os.path.join( opath , ofile )
+		if not os.path.isdir(opath):
+			os.makedirs(opath)
+		logger.info( f" * Save 'TMP/ERA5-AMIP/hr/{cvar}/{ofile}'" )
+		odatah.to_netcdf( os.path.join( opath , ofile ) )
 		
 		## Save daily
 		opath = os.path.join( cdsuParams.tmp , "ERA5-AMIP" , "day" , cvar )
@@ -248,16 +246,15 @@ def build_huss():##{{{
 		odatad = odatah.groupby("time.dayofyear").mean().rename( dayofyear = "time" ).assign_coords( time = dtime )
 		
 		## Save hourly
-		if cdsuParams.keep_hourly:
-			opath = os.path.join( cdsuParams.tmp , "ERA5-AMIP" , "hr" , cvar )
-			t0    = str(odatah.time[ 0].values)[:13].replace("-","").replace(" ","").replace("T","")
-			t1    = str(odatah.time[-1].values)[:13].replace("-","").replace(" ","").replace("T","")
-			ofile = f"ERA5-AMIP_{cvar}_hr_{area_name}_{t0}-{t1}.nc"
-			target = os.path.join( opath , ofile )
-			if not os.path.isdir(opath):
-				os.makedirs(opath)
-			logger.info( f" * Save 'TMP/ERA5-AMIP/hr/{cvar}/{ofile}'" )
-			odatah.to_netcdf( os.path.join( opath , ofile ) )
+		opath = os.path.join( cdsuParams.tmp , "ERA5-AMIP" , "hr" , cvar )
+		t0    = str(odatah.time[ 0].values)[:13].replace("-","").replace(" ","").replace("T","")
+		t1    = str(odatah.time[-1].values)[:13].replace("-","").replace(" ","").replace("T","")
+		ofile = f"ERA5-AMIP_{cvar}_hr_{area_name}_{t0}-{t1}.nc"
+		target = os.path.join( opath , ofile )
+		if not os.path.isdir(opath):
+			os.makedirs(opath)
+		logger.info( f" * Save 'TMP/ERA5-AMIP/hr/{cvar}/{ofile}'" )
+		odatah.to_netcdf( os.path.join( opath , ofile ) )
 		
 		## Save daily
 		opath = os.path.join( cdsuParams.tmp , "ERA5-AMIP" , "day" , cvar )
@@ -316,16 +313,15 @@ def build_heatIndex():##{{{
 		odatad = odatah.groupby("time.dayofyear").mean().rename( dayofyear = "time" ).assign_coords( time = dtime )
 		
 		## Save hourly
-		if cdsuParams.keep_hourly:
-			opath = os.path.join( cdsuParams.tmp , "ERA5-AMIP" , "hr" , cvar )
-			t0    = str(odatah.time[ 0].values)[:13].replace("-","").replace(" ","").replace("T","")
-			t1    = str(odatah.time[-1].values)[:13].replace("-","").replace(" ","").replace("T","")
-			ofile = f"ERA5-AMIP_{cvar}_hr_{area_name}_{t0}-{t1}.nc"
-			target = os.path.join( opath , ofile )
-			if not os.path.isdir(opath):
-				os.makedirs(opath)
-			logger.info( f" * Save 'TMP/ERA5-AMIP/hr/{cvar}/{ofile}'" )
-			odatah.to_netcdf( os.path.join( opath , ofile ) )
+		opath = os.path.join( cdsuParams.tmp , "ERA5-AMIP" , "hr" , cvar )
+		t0    = str(odatah.time[ 0].values)[:13].replace("-","").replace(" ","").replace("T","")
+		t1    = str(odatah.time[-1].values)[:13].replace("-","").replace(" ","").replace("T","")
+		ofile = f"ERA5-AMIP_{cvar}_hr_{area_name}_{t0}-{t1}.nc"
+		target = os.path.join( opath , ofile )
+		if not os.path.isdir(opath):
+			os.makedirs(opath)
+		logger.info( f" * Save 'TMP/ERA5-AMIP/hr/{cvar}/{ofile}'" )
+		odatah.to_netcdf( os.path.join( opath , ofile ) )
 		
 		## Save daily
 		opath = os.path.join( cdsuParams.tmp , "ERA5-AMIP" , "day" , cvar )
