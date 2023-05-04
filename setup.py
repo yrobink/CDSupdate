@@ -17,17 +17,21 @@
 ## along with CDSupdate.  If not, see <https://www.gnu.org/licenses/>.
 
 import os
+import pathlib
+from setuptools import setup
 
 ## Start by import release details
-cpath = os.path.dirname(os.path.abspath(__file__)) ## current-path
-with open( os.path.join( cpath , "CDSupdate" , "__release.py" ) , "r" ) as f:
+cpath = pathlib.Path(__file__).absolute().parent ## current-path
+with open( cpath / "CDSupdate" / "__release.py" , "r" ) as f:
 	lines = f.readlines()
 exec("".join(lines))
+
+##
 
 ## Required elements
 author           = ", ".join(authors)
 author_email     = ", ".join(authors_email)
-#package_dir      = { "CDSupdate" : os.path.join( cpath , "CDSupdate" ) }
+long_description = (cpath / "README.md").read_text()
 package_dir      = { "CDSupdate" : "CDSupdate" }
 requires         = [ "numpy" , "pandas" , "xarray" , "netCDF4" , "cftime" , "cdsapi" ]
 scripts          = ["scripts/cdsupdate"]
@@ -37,24 +41,33 @@ packages         = [
 	"CDSupdate",
 	"CDSupdate.data",
 	]
+classifiers      = [
+	"Development Status :: 5 - Production/Stable",
+	"License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)",
+	"Natural Language :: English",
+	"Operating System :: MacOS :: MacOS X",
+	"Operating System :: POSIX :: Linux",
+	"Programming Language :: Python :: 3",
+	"Topic :: Scientific/Engineering :: Mathematics"
+	]
 
 ## Now the setup
-from distutils.core import setup
-
 setup(  name             = name,
 		version          = version,
 		description      = description,
 		long_description = long_description,
+		long_description_content_type = 'text/markdown',
 		author           = author,
 		author_email     = author_email,
 		url              = src_url,
 		packages         = packages,
 		package_dir      = package_dir,
-		requires         = requires,
+		install_requires = requires,
 		scripts          = scripts,
 		license          = license,
 		keywords         = keywords,
 		platforms        = platforms,
+		classifiers      = classifiers,
 		include_package_data = True
      )
 
