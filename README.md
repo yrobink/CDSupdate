@@ -16,7 +16,13 @@ CDSupdate requires the following packages:
 - `cdsapi` 
 - `windows-curses` (only for Microsoft Windows users)
 
-Just run with python:
+From pip:
+
+~~~shell
+pip3 install CDSupdate
+~~~
+
+Or from source:
 
 ~~~shell
 pip3 install .
