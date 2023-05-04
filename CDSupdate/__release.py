@@ -19,18 +19,13 @@
 
 version_major = "1"
 version_minor = "0"
-version_patch = "3"
+version_patch = "4"
 version_extra = ""
 version       = f"{version_major}.{version_minor}.{version_patch}{version_extra}"
 
 name = "CDSupdate"
 
 description = "Auto-updater of data from the Climate Data Store"
-
-long_description = """\
-CDSupdate is a tools to automatically download and update data from the Climate
-Data Store. Currently, only ERA5 is supported.
-"""
 
 authors       = ["Yoann Robin"]
 authors_email = ["yoann.robin.k@gmail.com"]

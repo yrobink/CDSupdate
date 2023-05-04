@@ -176,6 +176,8 @@ class CDSUParams:
 				raise Exception("Output directory must be given!")
 			if not os.path.isdir(self.output_dir):
 				raise Exception( f"Output directory {self.output_dir} is not a path!" )
+			if self.output_dir.split(os.path.sep)[-1] == "ERA5":
+				self.output_dir = os.path.sep.join( self.output_dir.split(os.path.sep)[:-1] )
 			
 			## Test if the tmp directory exists
 			if self.tmp is not None:
