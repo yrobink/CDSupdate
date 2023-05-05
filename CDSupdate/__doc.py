@@ -21,7 +21,6 @@
 #############
 
 from .__release import version
-from .__release import long_description
 from .__release import license
 from .__release import license_txt
 from .__release import src_url
@@ -43,7 +42,8 @@ doc = """\
 CDSupdate ({})
 {}
 
-{}
+CDSupdate is a tools to automatically download and update data from the Climate
+Data Store. Currently, only ERA5 is supported.
 
 Input parameters
 ----------------
@@ -94,7 +94,6 @@ Sources and author(s)
 Sources   : {}
 Author(s) : {}
 """.format( version , "=" * (12+len(version)) ,
-            long_description,
             ", ".join([f"'{s}'" for s in cvarsParams.all_cvars if cvarsParams.level(s) == "single"]),
             ", ".join([f"'{s}'" for s in cvarsParams.all_cvars if not cvarsParams.level(s) == "single"]),
             ", ".join([f"'{s}'" for s in cvarsParams._avail_levels]),

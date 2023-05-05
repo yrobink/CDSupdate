@@ -9,7 +9,11 @@ single,0,,ps,surface_pressure,sp,surface_air_pressure,Surface Pressure,Pa,
 single,10,,uas,10m_u_component_of_wind,u10,eastward_wind,Eastward Near-Surface Wind,m.s-1,
 single,10,,vas,10m_v_component_of_wind,v10,northward_wind,Northward Near-Surface Wind,m.s-1,
 single,10,uas;vas,sfcWind,,,wind_speed,Near-Surface Wind Speed,m.s-1,
+single,10,sfcWind,sfcWindmax,,,wind_speed,Daily Max Near-Surface Wind Speed,m.s-1,
 single,2,tas;dptas,hurs,,,relative_humidity,Near-Surface Relative Humidity,%,
+single,2,hurs,hursmax,,,relative_humidity,Daily Max Near-Surface Relative Humidity,%,
 single,2,dptas;ps,huss,,,specific_humidity,Near-Surface Specific Humidity,kg.kg-1,
 single,2,tas;hurs,heatIndex,,,heat_index_of_air_temperature,Heat Index of Air Temperature,K,see Blazejczyk et al 2012 doi:10.1007/s00484-011-0453-2
 pressure,,,zg,geopotential,z,geopotential_height,Geopotential Height at __CHANGE__hPa,m,Multiply by 9.80665 to find the geopotential
+single,0,,rsds,mean_surface_downward_short_wave_radiation_flux,msdwswrf,surface_downwelling_shortwave_flux_in_air,Surface Downwelling Shortwave Radiation,
+single,0,,rlds,mean_surface_downward_long_wave_radiation_flux,msdwlwrf,surface_downwelling_longwave_flux_in_air,Surface Downwelling Longwave Radiation,
