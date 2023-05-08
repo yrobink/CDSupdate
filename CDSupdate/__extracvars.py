@@ -47,64 +47,6 @@ logger.addHandler(logging.NullHandler())
 ## Functions ##
 ###############
 
-def build_tasmin():##{{{
-	
-	area_name = cdsuParams.area_name
-	ipath  = os.path.join( cdsuParams.tmp , "ERA5-AMIP" , "hr" , "tas" )
-	ifiles = os.listdir(ipath)
-	ifiles.sort()
-	cvar = "tasmin"
-	
-	for ifile in ifiles:
-		
-		idata = xr.open_dataset( os.path.join( ipath , ifile ) )
-		year  = idata.time.dt.year[0].values
-		dtime = [dt.datetime(int(year),1,1) + dt.timedelta( days = int(i) - 1 ) for i in np.unique(idata.time.dt.dayofyear.values)]
-		
-		## Build daily variable
-		ddata = idata.groupby("time.dayofyear").min().rename( dayofyear = "time" ).assign_coords( time = dtime ).rename( { "tas" : cvar } )
-		
-		## Save daily variable
-		opath = os.path.join( cdsuParams.tmp , "ERA5-AMIP" , "day" , cvar )
-		t0    = str(ddata.time[ 0].values)[:10].replace("-","").replace(" ","").replace("T","")
-		t1    = str(ddata.time[-1].values)[:10].replace("-","").replace(" ","").replace("T","")
-		ofile = f"ERA5-AMIP_{cvar}_day_{area_name}_{t0}-{t1}.nc"
-		target = os.path.join( opath , ofile )
-		if not os.path.isdir(opath):
-			os.makedirs(opath)
-		logger.info( f" * Save 'TMP/ERA5-AMIP/day/{cvar}/{ofile}'" )
-		ddata.to_netcdf( os.path.join( opath , ofile ) )
-##}}}
-
-def build_tasmax():##{{{
-	
-	area_name = cdsuParams.area_name
-	ipath  = os.path.join( cdsuParams.tmp , "ERA5-AMIP" , "hr" , "tas" )
-	ifiles = os.listdir(ipath)
-	ifiles.sort()
-	cvar = "tasmax"
-	
-	for ifile in ifiles:
-		
-		idata = xr.open_dataset( os.path.join( ipath , ifile ) )
-		year  = idata.time.dt.year[0].values
-		dtime = [dt.datetime(int(year),1,1) + dt.timedelta( days = int(i) - 1 ) for i in np.unique(idata.time.dt.dayofyear.values)]
-		
-		## Build daily variable
-		ddata = idata.groupby("time.dayofyear").max().rename( dayofyear = "time" ).assign_coords( time = dtime ).rename( { "tas" : cvar } )
-		
-		## Save daily variable
-		opath = os.path.join( cdsuParams.tmp , "ERA5-AMIP" , "day" , cvar )
-		t0    = str(ddata.time[ 0].values)[:10].replace("-","").replace(" ","").replace("T","")
-		t1    = str(ddata.time[-1].values)[:10].replace("-","").replace(" ","").replace("T","")
-		ofile = f"ERA5-AMIP_{cvar}_day_{area_name}_{t0}-{t1}.nc"
-		target = os.path.join( opath , ofile )
-		if not os.path.isdir(opath):
-			os.makedirs(opath)
-		logger.info( f" * Save 'TMP/ERA5-AMIP/day/{cvar}/{ofile}'" )
-		ddata.to_netcdf( os.path.join( opath , ofile ) )
-##}}}
-
 def build_sfcWind():##{{{
 	
 	area_name = cdsuParams.area_name
@@ -156,40 +98,6 @@ def build_sfcWind():##{{{
 	
 ##}}}
 
-def build_sfcWindmax():##{{{
-	
-	cvar = "sfcWindmax"
-	area_name = cdsuParams.area_name
-	
-	## files
-	cvar0   = "sfcWind"
-	ipath0  = os.path.join( cdsuParams.tmp , "ERA5-AMIP" , "hr" , cvar0 )
-	ifiles0 = os.listdir(ipath0)
-	ifiles0.sort()
-	
-	
-	for ifile0 in ifiles0:
-		
-		idata0 = xr.open_dataset( os.path.join( ipath0 , ifile0 ) )
-		
-		year  = idata0.time.dt.year[0].values
-		dtime = [dt.datetime(int(year),1,1) + dt.timedelta( days = int(i) - 1 ) for i in np.unique(idata0.time.dt.dayofyear.values)]
-		
-		## Build daily
-		odatad = idata0.groupby("time.dayofyear").max().rename( dayofyear = "time" ).assign_coords( time = dtime ).rename( { cvar0 : cvar } )
-		
-		## Save daily
-		opath = os.path.join( cdsuParams.tmp , "ERA5-AMIP" , "day" , cvar )
-		t0    = str(odatad.time[ 0].values)[:10].replace("-","").replace(" ","").replace("T","")
-		t1    = str(odatad.time[-1].values)[:10].replace("-","").replace(" ","").replace("T","")
-		ofile = f"ERA5-AMIP_{cvar}_day_{area_name}_{t0}-{t1}.nc"
-		target = os.path.join( opath , ofile )
-		if not os.path.isdir(opath):
-			os.makedirs(opath)
-		logger.info( f" * Save 'TMP/ERA5-AMIP/day/{cvar}/{ofile}'" )
-		odatad.to_netcdf( os.path.join( opath , ofile ) )
-##}}}
-
 def build_hurs():##{{{
 	
 	cvar = "hurs"
@@ -230,40 +138,6 @@ def build_hurs():##{{{
 			os.makedirs(opath)
 		logger.info( f" * Save 'TMP/ERA5-AMIP/hr/{cvar}/{ofile}'" )
 		odatah.to_netcdf( os.path.join( opath , ofile ) )
-		
-		## Save daily
-		opath = os.path.join( cdsuParams.tmp , "ERA5-AMIP" , "day" , cvar )
-		t0    = str(odatad.time[ 0].values)[:10].replace("-","").replace(" ","").replace("T","")
-		t1    = str(odatad.time[-1].values)[:10].replace("-","").replace(" ","").replace("T","")
-		ofile = f"ERA5-AMIP_{cvar}_day_{area_name}_{t0}-{t1}.nc"
-		target = os.path.join( opath , ofile )
-		if not os.path.isdir(opath):
-			os.makedirs(opath)
-		logger.info( f" * Save 'TMP/ERA5-AMIP/day/{cvar}/{ofile}'" )
-		odatad.to_netcdf( os.path.join( opath , ofile ) )
-##}}}
-
-def build_hursmax():##{{{
-	
-	cvar = "hursmax"
-	area_name = cdsuParams.area_name
-	
-	## files
-	cvar0   = "hurs"
-	ipath0  = os.path.join( cdsuParams.tmp , "ERA5-AMIP" , "hr" , cvar0 )
-	ifiles0 = os.listdir(ipath0)
-	ifiles0.sort()
-	
-	
-	for ifile0 in ifiles0:
-		
-		idata0 = xr.open_dataset( os.path.join( ipath0 , ifile0 ) )
-		
-		year  = idata0.time.dt.year[0].values
-		dtime = [dt.datetime(int(year),1,1) + dt.timedelta( days = int(i) - 1 ) for i in np.unique(idata0.time.dt.dayofyear.values)]
-		
-		## Build daily
-		odatad = idata0.groupby("time.dayofyear").max().rename( dayofyear = "time" ).assign_coords( time = dtime ).rename( { cvar0 : cvar } )
 		
 		## Save daily
 		opath = os.path.join( cdsuParams.tmp , "ERA5-AMIP" , "day" , cvar )
@@ -403,24 +277,86 @@ def build_heatIndex():##{{{
 		odatad.to_netcdf( os.path.join( opath , ofile ) )
 ##}}}
 
+def build_cvarmin( cvar ):##{{{
+	
+	cvarN = f"{cvar}min"
+	area_name = cdsuParams.area_name
+	
+	## files
+	ipath  = os.path.join( cdsuParams.tmp , "ERA5-AMIP" , "hr" , cvar )
+	ifiles = os.listdir(ipath)
+	ifiles.sort()
+	
+	
+	for ifile in ifiles:
+		
+		idata = xr.open_dataset( os.path.join( ipath , ifile ) )
+		
+		year  = idata.time.dt.year[0].values
+		dtime = [dt.datetime(int(year),1,1) + dt.timedelta( days = int(i) - 1 ) for i in np.unique(idata.time.dt.dayofyear.values)]
+		
+		## Build daily
+		odatad = idata.groupby("time.dayofyear").min().rename( dayofyear = "time" ).assign_coords( time = dtime ).rename( { cvar : cvarN } )
+		
+		## Save daily
+		opath = os.path.join( cdsuParams.tmp , "ERA5-AMIP" , "day" , cvarN )
+		t0    = str(odatad.time[ 0].values)[:10].replace("-","").replace(" ","").replace("T","")
+		t1    = str(odatad.time[-1].values)[:10].replace("-","").replace(" ","").replace("T","")
+		ofile = f"ERA5-AMIP_{cvarN}_day_{area_name}_{t0}-{t1}.nc"
+		target = os.path.join( opath , ofile )
+		if not os.path.isdir(opath):
+			os.makedirs(opath)
+		logger.info( f" * Save 'TMP/ERA5-AMIP/day/{cvarN}/{ofile}'" )
+		odatad.to_netcdf( os.path.join( opath , ofile ) )
+##}}}
+
+def build_cvarmax( cvar ):##{{{
+	
+	cvarX = f"{cvar}max"
+	area_name = cdsuParams.area_name
+	
+	## files
+	ipath  = os.path.join( cdsuParams.tmp , "ERA5-AMIP" , "hr" , cvar )
+	ifiles = os.listdir(ipath)
+	ifiles.sort()
+	
+	
+	for ifile in ifiles:
+		
+		idata = xr.open_dataset( os.path.join( ipath , ifile ) )
+		
+		year  = idata.time.dt.year[0].values
+		dtime = [dt.datetime(int(year),1,1) + dt.timedelta( days = int(i) - 1 ) for i in np.unique(idata.time.dt.dayofyear.values)]
+		
+		## Build daily
+		odatad = idata.groupby("time.dayofyear").max().rename( dayofyear = "time" ).assign_coords( time = dtime ).rename( { cvar : cvarX } )
+		
+		## Save daily
+		opath = os.path.join( cdsuParams.tmp , "ERA5-AMIP" , "day" , cvarX )
+		t0    = str(odatad.time[ 0].values)[:10].replace("-","").replace(" ","").replace("T","")
+		t1    = str(odatad.time[-1].values)[:10].replace("-","").replace(" ","").replace("T","")
+		ofile = f"ERA5-AMIP_{cvarX}_day_{area_name}_{t0}-{t1}.nc"
+		target = os.path.join( opath , ofile )
+		if not os.path.isdir(opath):
+			os.makedirs(opath)
+		logger.info( f" * Save 'TMP/ERA5-AMIP/day/{cvarX}/{ofile}'" )
+		odatad.to_netcdf( os.path.join( opath , ofile ) )
+##}}}
+
 def build_EXTRA_cvars():##{{{
 	
 	cvars_cmp = cdsuParams.cvars_cmp
 	for cvar in cvars_cmp:
 		logger.info( f"Build EXTRA cvar '{cvar}'" )
 		
-		if cvar == "tasmin":
-			build_tasmin()
-		if cvar == "tasmax":
-			build_tasmax()
+		if cvar[-3:] == "min":
+			build_cvarmin( cvar[:-3] )
+		if cvar[-3:] == "max":
+			build_cvarmax( cvar[:-3] )
 		if cvar == "sfcWind":
 			build_sfcWind()
-		if cvar == "sfcWindmax":
-			build_sfcWindmax()
 		if cvar == "hurs":
 			build_hurs()
-		if cvar == "hursmax":
-			build_hursmax()
 		if cvar == "huss":
 			build_huss()
 		if cvar == "heatIndex":
