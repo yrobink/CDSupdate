@@ -36,6 +36,7 @@ import xarray as xr
 import pandas as pd
 
 from .__exceptions  import AbortForHelpException
+from .__exceptions  import  NoUserInputException
 
 from .__CVarsParams import CVarsParams
 from .__CVarsParams import cvarsParams
@@ -74,7 +75,13 @@ class CDSUParams:
 	
 	def init_from_user_input( self , *argv ):##{{{
 		
+		## In list
 		argv = list(argv)
+		
+		## Special case, no user input
+		if len(argv) == 0:
+			raise NoUserInputException
+		
 		## Special case of area
 		if "--area" in argv:
 			idx = argv.index("--area") + 1
@@ -99,8 +106,6 @@ class CDSUParams:
 		
 		## And store in the class
 		for key in kwargs:
-			if key not in self.__dict__:
-				raise Exception("Parameter not present in the class")
 			self.__dict__[key] = kwargs[key]
 			
 		

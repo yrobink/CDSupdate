@@ -40,6 +40,7 @@ from .__CDSUParams import cdsuParams
 from .__release    import version
 
 from .__exceptions import AbortForHelpException
+from .__exceptions import NoUserInputException
 
 from .__io import load_data_CDS
 from .__io import BRUT_to_AMIP_format
@@ -105,7 +106,12 @@ def start_cdsupdate( argv ):##{{{
 	walltime0 = dt.datetime.utcnow()
 	
 	## Read input
-	cdsuParams.init_from_user_input(*argv)
+	try:
+		cdsuParams.init_from_user_input(*argv)
+	except NoUserInputException as e:
+		print("No user input, abort!")
+		print("Read the documentation with 'cdsupdate --help'")
+		return
 	
 	## Init logs
 	cdsuParams.init_logging()
