@@ -47,6 +47,28 @@ logger.addHandler(logging.NullHandler())
 ## Functions ##
 ###############
 
+## Temperature units conversion ##{{{
+
+def kelvin2celcius(T):
+	return T - 273.15
+
+def celcius2kelvin(T):
+	return T + 273.15
+
+def fahrenheit2celcius(T):
+	return (T - 32.) * 5. / 9.
+
+def celcius2fahrenheit(T):
+	return T * 9. / 5. + 32
+
+def fahrenheit2kelvin(T):
+	return celcius2kelvin( fahrenheit2celcius(T) )
+
+def kelvin2fahrenheit(T):
+	return celcius2fahrenheit( kelvin2celcius(T) )
+
+##}}}
+
 def build_sfcWind():##{{{
 	
 	area_name = cdsuParams.area_name
@@ -210,9 +232,8 @@ def build_huss():##{{{
 		odatad.to_netcdf( os.path.join( opath , ofile ) )
 ##}}}
 
-def build_heatIndex():##{{{
-	
-	cvar = "heatIndex"
+def _build_HI_method_blazejczyk():##{{{
+	cvar = "HI"
 	area_name = cdsuParams.area_name
 	
 	## files
@@ -225,17 +246,16 @@ def build_heatIndex():##{{{
 	ifiles1 = os.listdir(ipath1)
 	ifiles1.sort()
 	
-	
 	for ifile0,ifile1 in zip(ifiles0,ifiles1):
 		
 		idata0 = xr.open_dataset( os.path.join( ipath0 , ifile0 ) )
 		idata1 = xr.open_dataset( os.path.join( ipath1 , ifile1 ) )
 		
+		## Build hourly HI
+		odatah = idata0.copy( deep = True ).rename( { cvar0 : cvar } )
 		year  = idata0.time.dt.year[0].values
 		dtime = [dt.datetime(int(year),1,1) + dt.timedelta( days = int(i) - 1 ) for i in np.unique(idata0.time.dt.dayofyear.values)]
 		
-		## Build hourly heatIndex
-		odatah = idata0.copy( deep = True ).rename( { cvar0 : cvar } )
 		c0     = -8.784695
 		c1     = 1.61139411
 		c2     = 2.338549
@@ -275,6 +295,95 @@ def build_heatIndex():##{{{
 			os.makedirs(opath)
 		logger.info( f" * Save 'TMP/ERA5-AMIP/day/{cvar}/{ofile}'" )
 		odatad.to_netcdf( os.path.join( opath , ofile ) )
+##}}}
+
+def _build_HI_method_noaa():##{{{
+	cvar = "HI"
+	area_name = cdsuParams.area_name
+	
+	## files
+	cvar0   = "tas"
+	ipath0  = os.path.join( cdsuParams.tmp , "ERA5-AMIP" , "hr" , cvar0 )
+	ifiles0 = os.listdir(ipath0)
+	ifiles0.sort()
+	cvar1   = "hurs"
+	ipath1  = os.path.join( cdsuParams.tmp , "ERA5-AMIP" , "hr" , cvar1 )
+	ifiles1 = os.listdir(ipath1)
+	ifiles1.sort()
+	
+	for ifile0,ifile1 in zip(ifiles0,ifiles1):
+		
+		idata0 = xr.open_dataset( os.path.join( ipath0 , ifile0 ) )
+		idata1 = xr.open_dataset( os.path.join( ipath1 , ifile1 ) )
+		
+		## Build hourly HI
+		odatah = idata0.copy( deep = True ).rename( { cvar0 : cvar } )
+		year  = idata0.time.dt.year[0].values
+		dtime = [dt.datetime(int(year),1,1) + dt.timedelta( days = int(i) - 1 ) for i in np.unique(idata0.time.dt.dayofyear.values)]
+		
+		## Variables
+		T = kelvin2fahrenheit(idata0[cvar0])
+		H = idata1[cvar1].round(0)
+		
+		## Constants
+		c0 = -42.379
+		c1 =   2.04901523
+		c2 =  10.14333127
+		c3 =  -0.22475541
+		c4 =  -0.00683783
+		c5 =  -0.05481717
+		c6 =   0.00122874
+		c7 =   0.00085282
+		c8 =  -0.00000199
+		
+		## Heat Index
+		HI = c0 + c1 * T + c2 * H + c3 * T * H + c4 * T**2 + c5 * H**2 + c6 * T**2 * H + c7 * T * H**2 + c8 * T**2 * H**2
+		
+		## Correction for extremes
+		HIA1 = ( 13 - H ) /  4 * np.sqrt( ( 17 - np.abs( T - 95 ) ) / 17 )
+		HIA2 = ( H - 85 ) / 10 * ( ( 87 - T ) / 5 )
+		HIL  = 0.5 * ( T + 61 + 1.2 * (T - 68) + 0.094 * H )
+		
+		HI = HI.where( ~( ( H < 13. ) & (T > 80.) & (T < 112) ) , HI - HIA1 )
+		HI = HI.where( ~( ( H > 85. ) & (T > 80.) & (T <  87) ) , HI + HIA2 )
+		HI = HI.where( HIL > 80. , HIL )
+		
+		odatah[cvar] = fahrenheit2kelvin(HI)
+		
+		## Build daily
+		odatad = odatah.groupby("time.dayofyear").mean().rename( dayofyear = "time" ).assign_coords( time = dtime )
+		
+		## Save hourly
+		opath = os.path.join( cdsuParams.tmp , "ERA5-AMIP" , "hr" , cvar )
+		t0    = str(odatah.time[ 0].values)[:13].replace("-","").replace(" ","").replace("T","")
+		t1    = str(odatah.time[-1].values)[:13].replace("-","").replace(" ","").replace("T","")
+		ofile = f"ERA5-AMIP_{cvar}_hr_{area_name}_{t0}-{t1}.nc"
+		target = os.path.join( opath , ofile )
+		if not os.path.isdir(opath):
+			os.makedirs(opath)
+		logger.info( f" * Save 'TMP/ERA5-AMIP/hr/{cvar}/{ofile}'" )
+		odatah.to_netcdf( os.path.join( opath , ofile ) )
+		
+		## Save daily
+		opath = os.path.join( cdsuParams.tmp , "ERA5-AMIP" , "day" , cvar )
+		t0    = str(odatad.time[ 0].values)[:10].replace("-","").replace(" ","").replace("T","")
+		t1    = str(odatad.time[-1].values)[:10].replace("-","").replace(" ","").replace("T","")
+		ofile = f"ERA5-AMIP_{cvar}_day_{area_name}_{t0}-{t1}.nc"
+		target = os.path.join( opath , ofile )
+		if not os.path.isdir(opath):
+			os.makedirs(opath)
+		logger.info( f" * Save 'TMP/ERA5-AMIP/day/{cvar}/{ofile}'" )
+		odatad.to_netcdf( os.path.join( opath , ofile ) )
+		
+##}}}
+
+def build_HI( method = "noaa" ):##{{{
+	
+	if method == "noaa":
+		_build_HI_method_noaa()
+	else:
+		_build_HI_method_blazejczyk()
+	
 ##}}}
 
 def build_cvarmin( cvar ):##{{{
@@ -359,8 +468,8 @@ def build_EXTRA_cvars():##{{{
 			build_hurs()
 		if cvar == "huss":
 			build_huss()
-		if cvar == "heatIndex":
-			build_heatIndex()
+		if cvar == "HI":
+			build_HI()
 	
 ##}}}
 

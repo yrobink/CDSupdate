@@ -321,7 +321,7 @@ def save_netcdf( idata , cvar , freq , ofile ):##{{{
 			else:
 				ncv_cvar.setncattr( att , cvarattrs[att] )
 		
-		ncv_cvar.setncattr( "coordinates" , "height lat lon" )
+		ncv_cvar.setncattr( "coordinates" , "height" )
 		if level == "single":
 			ncv_height[:] = float(cdsuParams.cvarsParams.height(cvar))
 		else:
@@ -390,8 +390,12 @@ def merge_AMIP_CF_format():##{{{
 				if ifileO is None:
 					logger.info( f" * No old data to merge" )
 					idataN = xr.open_dataset( os.path.join( ipath , ifileN ) )
-					t0    = str(idataN.time[ 0].values)[:10].replace("-","").replace(" ","").replace("T","")
-					t1    = str(idataN.time[-1].values)[:10].replace("-","").replace(" ","").replace("T","")
+					if freq == "hr":
+						t0    = str(idataN.time[ 0].values)[:13].replace("-","").replace(" ","").replace("T","")
+						t1    = str(idataN.time[-1].values)[:13].replace("-","").replace(" ","").replace("T","")
+					else:
+						t0    = str(idataN.time[ 0].values)[:10].replace("-","").replace(" ","").replace("T","")
+						t1    = str(idataN.time[-1].values)[:10].replace("-","").replace(" ","").replace("T","")
 					ofile  = f"ERA5_{cvar}_{freq}_{area_name}_{t0}-{t1}.nc"
 					logger.info( f" * Save '{ofile}'" )
 					save_netcdf( idataN , cvar , freq , os.path.join( opath , ofile ) )
@@ -407,8 +411,12 @@ def merge_AMIP_CF_format():##{{{
 					del idataO
 					os.remove( os.path.join( opath , ifileO ) )
 					
-					t0    = str(idata.time[ 0].values)[:10].replace("-","").replace(" ","").replace("T","")
-					t1    = str(idata.time[-1].values)[:10].replace("-","").replace(" ","").replace("T","")
+					if freq == "hr":
+						t0    = str(idataN.time[ 0].values)[:13].replace("-","").replace(" ","").replace("T","")
+						t1    = str(idataN.time[-1].values)[:13].replace("-","").replace(" ","").replace("T","")
+					else:
+						t0    = str(idataN.time[ 0].values)[:10].replace("-","").replace(" ","").replace("T","")
+						t1    = str(idataN.time[-1].values)[:10].replace("-","").replace(" ","").replace("T","")
 					ofile  = f"ERA5_{cvar}_{freq}_{area_name}_{t0}-{t1}.nc"
 					logger.info( f" * Save '{ofile}'" )
 					save_netcdf( idata , cvar , freq , os.path.join( opath , ofile ) )
