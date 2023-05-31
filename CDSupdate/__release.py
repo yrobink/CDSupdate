@@ -1,5 +1,5 @@
 
-## Copyright(c) 2022, 2023 Yoann Robin
+## Copyright(c) 2022, 2023 Yoann Robin, Andreia Hisi
 ## 
 ## This file is part of CDSupdate.
 ## 
@@ -19,7 +19,7 @@
 
 version_major = "1"
 version_minor = "2"
-version_patch = "3"
+version_patch = "4"
 version_extra = ""
 version       = f"{version_major}.{version_minor}.{version_patch}{version_extra}"
 
@@ -27,15 +27,15 @@ name = "CDSupdate"
 
 description = "Auto-updater of data from the Climate Data Store"
 
-authors       = ["Yoann Robin"]
-authors_email = ["yoann.robin.k@gmail.com"]
+authors       = ["Yoann Robin","Andreia Hisi"]
+authors_email = ["yoann.robin.k@gmail.com","andreia.hisi@lsce.ipsl.fr"]
 authors_doc   = ", ".join( [ f"{ath} ({athm})" for ath,athm in zip(authors,authors_email) ] )
 
 src_url = "https://github.com/yrobink/CDSupdate"
 
 license = "GNU-GPL3"
 license_txt = """\
-Copyright(c) 2022, 2023 Yoann Robin
+Copyright(c) 2022, 2023 Yoann Robin, Andreia Hisi
 
 This file is part of CDSupdate.
 

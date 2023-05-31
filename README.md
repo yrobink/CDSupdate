@@ -25,6 +25,8 @@ pip3 install CDSupdate
 Or from source:
 
 ~~~shell
+git clone https://github.com/yrobink/CDSupdate.git
+cd CDSupdaye
 pip3 install .
 ~~~
 
@@ -49,7 +51,7 @@ cdsupdate --log info test.log --period 2019-11-09/2022-01-17 --cvar tas --area N
 
 ## License
 
-Copyright(c) 2022, 2023 Yoann Robin
+Copyright(c) 2022, 2023 Yoann Robin, Andreia Hisi
 
 This file is part of CDSupdate.
 
