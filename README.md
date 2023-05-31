@@ -48,6 +48,9 @@ As example, to download the daily mean temperature over the North Atlantic
 cdsupdate --log info test.log --period 2019-11-09/2022-01-17 --cvar tas --area NorthAtlantic --odir odir
 ~~~
 
+## How to cite it ?
+
+You can use this [DOI:10.5281/zenodo.7991332](https://doi.org/10.5281/zenodo.7991332)
 
 ## License
 
