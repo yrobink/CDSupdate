@@ -412,11 +412,11 @@ def merge_AMIP_CF_format():##{{{
 					os.remove( os.path.join( opath , ifileO ) )
 					
 					if freq == "hr":
-						t0    = str(idataN.time[ 0].values)[:13].replace("-","").replace(" ","").replace("T","")
-						t1    = str(idataN.time[-1].values)[:13].replace("-","").replace(" ","").replace("T","")
+						t0    = str(idata.time[ 0].values)[:13].replace("-","").replace(" ","").replace("T","")
+						t1    = str(idata.time[-1].values)[:13].replace("-","").replace(" ","").replace("T","")
 					else:
-						t0    = str(idataN.time[ 0].values)[:10].replace("-","").replace(" ","").replace("T","")
-						t1    = str(idataN.time[-1].values)[:10].replace("-","").replace(" ","").replace("T","")
+						t0    = str(idata.time[ 0].values)[:10].replace("-","").replace(" ","").replace("T","")
+						t1    = str(idata.time[-1].values)[:10].replace("-","").replace(" ","").replace("T","")
 					ofile  = f"ERA5_{cvar}_{freq}_{area_name}_{t0}-{t1}.nc"
 					logger.info( f" * Save '{ofile}'" )
 					save_netcdf( idata , cvar , freq , os.path.join( opath , ofile ) )
