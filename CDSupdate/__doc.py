@@ -51,8 +51,9 @@ Input parameters
     Enable log, first optional is argument is the level (default is WARNING),
     the second is a file.
 --period t0/t1
-    Period to download/update, t* must be in the iso format YYYY-MM-DD. If t1
-    is not given, t1 = today.
+    Period to download/update, t* must be in the iso format YYYY-MM-DD. I you
+    pass only 't0', the single day is downloaded, and if you pass 't0/' all the
+    period between t0 and today is downloaded.
 --cvar cvar0,cvar1,...
     List of variables to download/update.
 --area name,xmin,xmax,ymin,ymax OR keyword
