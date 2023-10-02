@@ -229,16 +229,19 @@ class CDSUParams:
 			## And finally the period
 			if self.period is None:
 				raise Exception( f"Period not given!" )
-			self.period = self.period.split("/")
-			if len(self.period) == 1:
-				self.period.append( str(dt.datetime.utcnow())[:10] )
 			try:
-				self.period = [dt.datetime.fromisoformat(t) for t in self.period]
+				period = [ dt.datetime.fromisoformat(t) for t in self.period.split("/") if len(t) > 0]
 			except:
 				raise Exception( f"Invalid format for period, use isoformat! (YYYY-MM-DD)" )
-			if not self.period[0] < self.period[1]:
-				raise Exception( f"Start period greater than the end!" )
+			if len(period) == 1:
+				if "/" in self.period:
+					period.append(dt.datetime.fromisoformat( str(dt.datetime.utcnow())[:10] ))
+				else:
+					period.append(period[0])
 			
+			self.period = period
+			if not self.period[0] <= self.period[1]:
+				raise Exception( f"Start period greater than the end!" )
 			
 		except Exception as e:
 			self.abort = True
