@@ -310,11 +310,11 @@ class CDSUParams:
 			timeY = time.groupby("time.year")[year]
 			
 			## Check if year is complete
-			if timeY.dt.month[0] == 1 and timeY.dt.day[0] == 1 and timeY.dt.month[-1] == 12 and timeY.dt.day[-1] == 31:
-				tl = str(timeY[ 0].values)[:10]
-				tr = str(timeY[-1].values)[:10]
-				cdsApiParams[(tl,tr)] = self._period_to_CDSAPI( tl , tr , True )
-				continue
+#			if timeY.dt.month[0] == 1 and timeY.dt.day[0] == 1 and timeY.dt.month[-1] == 12 and timeY.dt.day[-1] == 31:
+#				tl = str(timeY[ 0].values)[:10]
+#				tr = str(timeY[-1].values)[:10]
+#				cdsApiParams[(tl,tr)] = self._period_to_CDSAPI( tl , tr , True )
+#				continue
 			
 			## Not complete, so loop on month
 			for month in np.unique(timeY.dt.month):
