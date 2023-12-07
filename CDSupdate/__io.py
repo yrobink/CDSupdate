@@ -123,7 +123,7 @@ def load_data_CDS():##{{{
 				logger.info( f" * => Warning '{e}', data not used." )
 				if os.path.isfile(target):
 					os.remove(target)
-
+	
 ##}}}
 
 def BRUT_to_AMIP_format():##{{{
@@ -166,7 +166,7 @@ def BRUT_to_AMIP_format():##{{{
 		for year in difiles:
 			
 			## Load data
-			idata  = xr.open_mfdataset( [ os.path.join( ipath , ifile ) for ifile in difiles[year] ] )
+			idata = xr.concat( [ xr.open_dataset( os.path.join( ipath , ifile ) ).astype("float32") for ifile in difiles[year] ] , dim = "time" )
 			if "expver" in idata:
 				idata = idata.sel( expver = 1 ).combine_first( idata.sel( expver = 5 ) )
 			idata = idata.compute()
