@@ -1,5 +1,5 @@
 
-## Copyright(c) 2023 Yoann Robin, Andreia Hisi
+## Copyright(c) 2023, 2024 Yoann Robin, Andreia Hisi
 ## 
 ## This file is part of CDSupdate.
 ## 
@@ -221,18 +221,15 @@ def build_gattrs( cvar , level ): ##{{{
 		level_name = "pressure"
 	
 	## Global attributes
-	now    = str(dt.datetime.utcnow())[:19]
+	now    = str(dt.datetime.now(dt.UTC))[:19].replace(" ","T") + "Z"
 	gattrs = {}
 	gattrs["title"]         = f"reanalysis-era5-{level_name}-level"
 	gattrs["institution"]   = "ECMWF"
-	gattrs["Conventions"]   = "CF-1.10"
-	gattrs["creation_date"] = now + " (UTC)"
+	gattrs["Conventions"]   = "CF-1.11"
+	gattrs["creation_date"] = now
 	
+	gattrs["source"] = "reanalysis of observations by the ECMWF model"
 	gattrs["level"] = level
-	if level == "single":
-		gattrs["source"] = "https://doi.org/10.24381/cds.adbb2d47"
-	else:
-		gattrs["source"] = "https://doi.org/10.24381/cds.bd0915c6"
 	
 	
 	## Reference
