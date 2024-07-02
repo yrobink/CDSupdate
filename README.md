@@ -50,11 +50,11 @@ cdsupdate --log info test.log --period 2019-11-09/2022-01-17 --cvar tas --area N
 
 ## How to cite it ?
 
-You can use this [DOI:10.5281/zenodo.7991332](https://doi.org/10.5281/zenodo.7991332)
+You can use this [DOI:10.5281/zenodo.7991331](https://doi.org/10.5281/zenodo.7991331)
 
 ## License
 
-Copyright(c) 2022, 2023 Yoann Robin, Andreia Hisi
+Copyright(c) 2022 / 2024 Yoann Robin, Andreia Hisi
 
 This file is part of CDSupdate.
 
