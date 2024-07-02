@@ -1,5 +1,5 @@
 
-## Copyright(c) 2022, 2023 Yoann Robin
+## Copyright(c) 2022 / 2024 Yoann Robin
 ## 
 ## This file is part of CDSupdate.
 ## 
@@ -51,9 +51,9 @@ Input parameters
     Enable log, first optional is argument is the level (default is WARNING),
     the second is a file.
 --period t0/t1
-    Period to download/update, t* must be in the iso format YYYY-MM-DD. I you
-    pass only 't0', the single day is downloaded, and if you pass 't0/' all the
-    period between t0 and today is downloaded.
+    Period to download/update, t* must be in the iso format YYYY-MM-DD, in UTC
+    time. If you pass only 't0', the single day is downloaded, and if you pass
+    't0/' all the period between t0 and today is downloaded.
 --cvar cvar0,cvar1,...
     List of variables to download/update.
 --area name,xmin,xmax,ymin,ymax OR keyword
@@ -75,6 +75,13 @@ About the variables
   {}
 - Pressure level supported:
   {}
+- Daily averages, minimums and maximums are taken between 00:00 and 00:00, in
+  UTC time.
+- huss is computed from vapor pressure (derived from dewpoint temperature) and
+  surface pressure (see [1], table 4.2a).
+- hurs is computed from vapor pressure (derived from dewpoint temperature) and
+  saturated vapor pressure (from temperature) (see [1], table 4.2b).
+- Heat Index HI is computed with the NOAA equation (see [2])
 
 About the area
 --------------
@@ -85,6 +92,12 @@ Examples
 --------
 cdsupdate --log info --period 2022-01-01/2023-04-14 --cvar tas,pr,zg500 --keep-hourly --area NorthAtlantic      --output-dir <ERA5_dir> ## Change <ERA5_dir> for a directory
 cdsupdate --log info --period 2022-01-01/2023-04-14 --cvar tas,pr,zg500 --keep-hourly --area France,-5,10,41,52 --output-dir <ERA5_dir> ## Change <ERA5_dir> for a directory
+
+References
+----------
+[1] Stull, Roland : Practical Meteorology - An Algebra Based survey of
+    Atmospheric Science. ISBN-13: 978-0-88865-283-6
+[2] https://www.wpc.ncep.noaa.gov/html/heatindex_equation.shtml 
 
 License {}
 {}
