@@ -1,5 +1,5 @@
 
-## Copyright(c) 2022, 2023 Yoann Robin, Andreia Hisi
+## Copyright(c) 2022 / 2024 Yoann Robin, Andreia Hisi
 ## 
 ## This file is part of CDSupdate.
 ## 
@@ -19,7 +19,7 @@
 
 version_major = "1"
 version_minor = "4"
-version_patch = "0"
+version_patch = "1"
 version_extra = ""
 version       = f"{version_major}.{version_minor}.{version_patch}{version_extra}"
 
