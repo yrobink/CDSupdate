@@ -1,2 +1,2 @@
-include CDSupdate/data/*.csv
-include CDSupdate/data/*.txt
+include src/CDSupdate/data/*.csv
+include src/CDSupdate/data/*.txt

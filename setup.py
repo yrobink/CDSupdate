@@ -22,7 +22,7 @@ from setuptools import setup
 
 ## Start by import release details
 cpath = pathlib.Path(__file__).absolute().parent ## current-path
-with open( cpath / "CDSupdate" / "__release.py" , "r" ) as f:
+with open( cpath / "src" / "CDSupdate" / "__release.py" , "r" ) as f:
 	lines = f.readlines()
 exec("".join(lines))
 
@@ -32,7 +32,7 @@ exec("".join(lines))
 author           = ", ".join(authors)
 author_email     = ", ".join(authors_email)
 long_description = (cpath / "README.md").read_text()
-package_dir      = { "CDSupdate" : "CDSupdate" }
+package_dir      = { "CDSupdate" : "src/CDSupdate" }
 requires         = [ "numpy" , "pandas" , "xarray" , "netCDF4" , "cftime" , "cdsapi" ]
 scripts          = ["scripts/cdsupdate"]
 keywords         = ["Climate Data Store","Auto update"]
