@@ -117,7 +117,8 @@ def load_data_CDS():##{{{
 			
 			## And run download
 			try:
-				client = cdsapi.Client( key = cdskey , url = cdsurl , verify = cdsverify , quiet = True , progress = False )
+#				client = cdsapi.Client( key = cdskey , url = cdsurl , verify = cdsverify , quiet = True , progress = False )
+				client = cdsapi.Client( key = cdskey , url = cdsurl , quiet = True )
 				client.retrieve( name , request , target )
 			except Exception as e:
 				logger.info( f" * => Warning '{e}', data not used." )
@@ -166,9 +167,10 @@ def BRUT_to_AMIP_format():##{{{
 		for year in difiles:
 			
 			## Load data
-			idata = xr.concat( [ xr.open_dataset( os.path.join( ipath , ifile ) ).astype("float32") for ifile in difiles[year] ] , dim = "time" )
-			if "expver" in idata:
-				idata = idata.sel( expver = 1 ).combine_first( idata.sel( expver = 5 ) )
+#			idata = xr.concat( [ xr.open_dataset( os.path.join( ipath , ifile ) ).astype("float32") for ifile in difiles[year] ] , dim = "time" )
+			idata = xr.concat( [ xr.open_dataset( os.path.join( ipath , ifile ) ).astype("float32") for ifile in difiles[year] ] , dim = "valid_time" ).rename( valid_time = "time" )
+#			if "expver" in idata:
+#				idata = idata.sel( expver = 1 ).combine_first( idata.sel( expver = 5 ) )
 			idata = idata.compute()
 			
 			## Reorganize lon / lat axis
