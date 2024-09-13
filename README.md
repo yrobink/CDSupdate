@@ -1,8 +1,9 @@
 # CDSupdate
 
+CDSupdate is a Python package that automates the process of retrieving, processing, and managing climate data from the Climate
+Data Store (CDS) API. The tool generates daily climate data summaries, performs calculations to create custom variables such as
+relative humidity and heat index which serve as risk assessments, and organizes the data into a user-friendly format. 
 
-CDSupdate is a tools to automatically download and update data from the Climate
-Data Store. Currently, only ERA5 is supported.
 
 ## Installation
 
