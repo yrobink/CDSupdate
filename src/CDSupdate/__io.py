@@ -107,6 +107,12 @@ def load_data_CDS():##{{{
 				h = level
 				request["pressure_level"] = level
 			
+			##
+			if level == "single" and request["variable"] == "geopotential":
+				for p in ["year","month","day","time"]:
+					if isinstance(request[p],list):
+						request[p] = request[p][0]
+			
 			## Build target
 			opath = os.path.join( cdsuParams.tmp , "ERA5-BRUT" , "hr" , cvar + h )
 			ofile = f"ERA5-BRUT_{cvar+h}_hr_{area_name}_{key[0].replace('-','')}-{key[1].replace('-','')}.nc"
@@ -120,7 +126,6 @@ def load_data_CDS():##{{{
 			## And run download
 			try:
 				client = cdsapi.Client( key = cdskey , url = cdsurl , verify = cdsverify , quiet = True , progress = False )
-#				client = cdsapi.Client( key = cdskey , url = cdsurl , quiet = True )
 				client.retrieve( name , request , target )
 			except Exception as e:
 				logger.info( f" * => Warning '{e}', data not used." )
@@ -169,15 +174,30 @@ def BRUT_to_AMIP_format():##{{{
 		for year in difiles:
 			
 			## Load data
-#			idata = xr.concat( [ xr.open_dataset( os.path.join( ipath , ifile ) ).astype("float32") for ifile in difiles[year] ] , dim = "time" )
 			idata = xr.concat( [ xr.open_dataset( os.path.join( ipath , ifile ) ).astype("float32") for ifile in difiles[year] ] , dim = "valid_time" ).rename( valid_time = "time" )
-#			if "expver" in idata:
-#				idata = idata.sel( expver = 1 ).combine_first( idata.sel( expver = 5 ) )
 			idata = idata.compute()
 			
 			## Reorganize lon / lat axis
 			idata = idata.rename( { "longitude" : "lon" , "latitude" : "lat" , evar : cvar + h } )
 			idata = idata.assign_coords( lon = idata.lon.where( idata.lon < 180 , idata.lon.values - 360 ) ).sortby("lon").sortby("lat").compute()
+			
+			## Special case, orography
+			if level == "single" and cvar == "orog":
+				
+				## Convert to orography and remove time axis
+				g = 9.80665
+				idata[cvar] = idata[cvar] / g
+				idata[cvar] = idata[cvar][0,:,:]
+				idata = idata.drop_vars("time")
+				
+				opath = os.path.join( cdsuParams.tmp , "ERA5-AMIP" , "fx" , cvar )
+				ofile = f"ERA5-AMIP_{cvar}_fx_{area_name}.nc"
+				target = os.path.join( opath , ofile )
+				if not os.path.isdir(opath):
+					os.makedirs(opath)
+				logger.info( f" * Save 'TMP/ERA5-AMIP/fx/{cvar}/{ofile}'" )
+				idata.to_netcdf( os.path.join( opath , ofile ) )
+				return
 			
 			## Delete last day if all hours are not present
 			t0 = str(idata.time[ 0].values)[:10] + " 00:00"
@@ -335,6 +355,78 @@ def save_netcdf( idata , cvar , freq , ofile ):##{{{
 	
 ##}}}
 
+def save_orography():##{{{
+	
+	##
+	area_name = cdsuParams.area_name
+	cvar      = "orog"
+	
+	## Open
+	ipath = os.path.join( cdsuParams.tmp , "ERA5-AMIP" , "fx" , cvar )
+	ifile = f"ERA5-AMIP_{cvar}_fx_{area_name}.nc"
+	idata = xr.open_dataset( os.path.join( ipath , ifile ) )
+	
+	## And save
+	avar,level = cdsuParams.cvarsParams.split_level(cvar)
+	nlat       = idata.lat.size
+	nlon       = idata.lon.size
+	
+	opath = os.path.join( cdsuParams.output_dir , "ERA5" , area_name , 'fx' , cvar )
+	if not os.path.isdir(opath):
+		os.makedirs(opath)
+	ofile  = f"ERA5_{cvar}_fx_{area_name}.nc"
+	with netCDF4.Dataset( os.path.join( opath , ofile ) , mode = "w" ) as ncf:
+		
+		## Add dimensions
+		ncd_lat  = ncf.createDimension( "lat"  , idata.lat.size )
+		ncd_lon  = ncf.createDimension( "lon"  , idata.lon.size )
+		
+		## Add variables of dimensions
+		ncv_lat    = ncf.createVariable( "lat"    , "double" , ("lat",)  , fill_value = np.nan , shuffle = False , compression = "zlib" , complevel = 5 , chunksizes = (nlat,) )
+		ncv_lon    = ncf.createVariable( "lon"    , "double" , ("lon",)  , fill_value = np.nan , shuffle = False , compression = "zlib" , complevel = 5 , chunksizes = (nlon,) )
+		ncv_height = ncf.createVariable( "height" , "double" )
+		
+		## Add attributes
+		ncv_lat.setncattr( "axis"          , "Y"             )
+		ncv_lat.setncattr( "long_name"     , "Latitude"      )
+		ncv_lat.setncattr( "standard_name" , "latitude"      )
+		ncv_lat.setncattr( "units"         , "degrees_north" )
+		
+		ncv_lon.setncattr( "axis"          , "X"            )
+		ncv_lon.setncattr( "long_name"     , "Longitude"    )
+		ncv_lon.setncattr( "standard_name" , "longitude"    )
+		ncv_lon.setncattr( "units"         , "degrees_east" )
+		
+		ncv_height.setncattr( "axis"          , "Z"      )
+		ncv_height.setncattr( "long_name"     , "height" )
+		ncv_height.setncattr( "standard_name" , "height" )
+		ncv_height.setncattr( "positive"      , "up"     )
+		ncv_height.setncattr( "units"         , "m"      )
+		
+		## Fill variables of dimensions
+		ncv_lat[:]    = idata.lat.values
+		ncv_lon[:]    = idata.lon.values
+		
+		## Now the main variable
+		ncv_cvar = ncf.createVariable( cvar , "float32" , ("lat","lon")  , fill_value = np.nan , shuffle = False , compression = "zlib" , complevel = 5 , chunksizes = (nlat,nlon) )
+		ncv_cvar[:] = idata[cvar].values
+		
+		## Attributes
+		cvarattrs = cdsuParams.cvarsParams.attrs(avar)
+		for att in cvarattrs:
+			if len(cvarattrs[att]) == 0:
+				continue
+			ncv_cvar.setncattr( att , cvarattrs[att] )
+		
+		ncv_cvar.setncattr( "coordinates" , "height" )
+		ncv_height[:] = float(cdsuParams.cvarsParams.height(cvar))
+		
+		## Add global attrs
+		gattrs = build_gattrs( cvar , level )
+		for attr in gattrs:
+			ncf.setncattr( attr , gattrs[attr] )
+##}}}
+
 def merge_AMIP_CF_format():##{{{
 	
 	## Parameters
@@ -343,6 +435,11 @@ def merge_AMIP_CF_format():##{{{
 	## List of cvars
 	cvars = list(cdsuParams.cvars_cmp)
 	for cvar,level in zip(cdsuParams.cvars_dwl,cdsuParams.cvars_lev):
+		
+		if level == "single" and cvar == "orog":
+			save_orography()
+			continue
+		
 		if level == "single":
 			cvars.append(cvar)
 		else:
