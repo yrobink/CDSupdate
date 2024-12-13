@@ -45,10 +45,11 @@ from .__release import src_url
 ## Init logging ##
 ##################
 
+logging.captureWarnings(True)
 logger = logging.getLogger(__name__)
 logger.addHandler(logging.NullHandler())
 
-for mod in ["cdsapi"]:
+for mod in ["cdsapi","datapi"]:
 	logging.getLogger(mod).setLevel(logging.ERROR)
 
 
@@ -65,9 +66,10 @@ def load_data_CDS():##{{{
 	
 	## cdsapi base params
 	request_base = {
-	           "product_type" : "reanalysis",
-	           "format"        : "netcdf",
-	           "area"          : cdsarea
+	           "product_type"    : "reanalysis",
+	           "data_format"     : "netcdf",
+	           "download_format" : "unarchived",
+	           "area"            : cdsarea
 	           }
 	
 	## List of climate vars
