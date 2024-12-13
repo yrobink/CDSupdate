@@ -119,8 +119,8 @@ def load_data_CDS():##{{{
 			
 			## And run download
 			try:
-#				client = cdsapi.Client( key = cdskey , url = cdsurl , verify = cdsverify , quiet = True , progress = False )
-				client = cdsapi.Client( key = cdskey , url = cdsurl , quiet = True )
+				client = cdsapi.Client( key = cdskey , url = cdsurl , verify = cdsverify , quiet = True , progress = False )
+#				client = cdsapi.Client( key = cdskey , url = cdsurl , quiet = True )
 				client.retrieve( name , request , target )
 			except Exception as e:
 				logger.info( f" * => Warning '{e}', data not used." )
