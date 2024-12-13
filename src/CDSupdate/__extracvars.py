@@ -69,6 +69,27 @@ def kelvin2fahrenheit(T):
 
 ##}}}
 
+def build_ubtas():##{{{
+	
+	## ta500: temperature at 500hPa
+	## zg500: geopotential at 500hPa
+	## z    : orography
+	## huss : surface specific humidity
+	
+	## Constant
+	Lv      = 2.5008 * 1e6 ## Latent heat of vaporization
+	cp      = 1004.7090    ## Specific heat of air at constant pressure
+	g       = 9.81         ## Gravitational constant
+	
+	## Specific humidity saturation at 500hPa from Clausius-Clapeyron relation
+	epsilon = 0.0180153 / 0.028964
+	hus_sat = epsilon * 6.11 * np.exp( Lv / 461.52 * ( 1 / 273.15 - 1 / ta500 ) ) / 500
+	
+	## And compute upper bound
+	ubtas   = ta500 + Lv / cp * (hus_sat - huss) + g / cp * (zg500 - z)
+	
+##}}}
+
 def build_sfcWind():##{{{
 	
 	area_name = cdsuParams.area_name

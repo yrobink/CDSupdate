@@ -18,8 +18,8 @@
 
 
 version_major = "2"
-version_minor = "1"
-version_patch = "1"
+version_minor = "2"
+version_patch = "0"
 version_extra = ""
 version       = f"{version_major}.{version_minor}.{version_patch}{version_extra}"
 

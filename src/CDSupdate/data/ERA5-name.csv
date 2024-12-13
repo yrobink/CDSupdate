@@ -1,5 +1,6 @@
 level,height,dep,AMIP,CDS,ERA5,standard_name,long_name,units,comment
 single,2,,tas,2m_temperature,t2m,air_temperature,Mean Near-Surface Air Temperature,K,
+pressure,,,ta,temperature,t,air_temperature,Mean Air Temperature at __CHANGE__hPa,K,
 single,2,,dptas,2m_dewpoint_temperature,d2m,dew_point_temperature,Near-Surface Dew Point Air Temperature,K,
 single,2,tas,tasmin,,,air_temperature,Daily Min Near-Surface Air Temperature,K,
 single,2,tas,tasmax,,,air_temperature,Daily Max Near-Surface Air Temperature,K,
