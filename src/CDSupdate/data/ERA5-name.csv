@@ -6,7 +6,7 @@ pressure,,,ta,temperature,t,air_temperature,Mean Air Temperature at __CHANGE__hP
 single,2,,dptas,2m_dewpoint_temperature,d2m,dew_point_temperature,Near-Surface Dew Point Air Temperature,K,
 single,2,tas,tasmin,,,air_temperature,Daily Min Near-Surface Air Temperature,K,
 single,2,tas,tasmax,,,air_temperature,Daily Max Near-Surface Air Temperature,K,
-single,0,,pr,mean_total_precipitation_rate,mtpr,precipitation_flux,Total Precipitation Flux,kg.m-2.s-1,
+single,0,,pr,mean_total_precipitation_rate,avg_tprate,precipitation_flux,Total Precipitation Flux,kg.m-2.s-1,
 single,0,,psl,mean_sea_level_pressure,msl,air_pressure_at_sea_level,Sea Level Pressure,Pa,
 single,0,,ps,surface_pressure,sp,surface_air_pressure,Surface Pressure,Pa,
 single,10,,uas,10m_u_component_of_wind,u10,eastward_wind,Eastward Near-Surface Wind,m.s-1,
@@ -19,5 +19,5 @@ single,2,dptas;ps,huss,,,specific_humidity,Near-Surface Specific Humidity,kg.kg-
 single,2,tas;hurs,HI,,,heat_index_of_air_temperature,Heat Index of Air Temperature,K,NOAA method
 single,2,HI,HImax,,,heat_index_of_air_temperature,Daily Max Heat Index of Air Temperature,K,NOAA method
 pressure,,,zg,geopotential,z,geopotential_height,Geopotential Height at __CHANGE__hPa,m,Multiply by 9.80665 to find the geopotential
-single,0,,rsds,mean_surface_downward_short_wave_radiation_flux,msdwswrf,surface_downwelling_shortwave_flux_in_air,Surface Downwelling Shortwave Radiation,
-single,0,,rlds,mean_surface_downward_long_wave_radiation_flux,msdwlwrf,surface_downwelling_longwave_flux_in_air,Surface Downwelling Longwave Radiation,
+single,0,,rsds,mean_surface_downward_short_wave_radiation_flux,avg_sdswrf,surface_downwelling_shortwave_flux_in_air,Surface Downwelling Shortwave Radiation,
+single,0,,rlds,mean_surface_downward_long_wave_radiation_flux,avg_sdlwrf,surface_downwelling_longwave_flux_in_air,Surface Downwelling Longwave Radiation,

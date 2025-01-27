@@ -55,7 +55,7 @@ You can use this [DOI:10.5281/zenodo.7991331](https://doi.org/10.5281/zenodo.799
 
 ## License
 
-Copyright(c) 2022 / 2024 Yoann Robin, Andreia Hisi
+Copyright(c) 2022 / 2025 Yoann Robin, Andreia Hisi
 
 This file is part of CDSupdate.
 
