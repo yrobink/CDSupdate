@@ -1,5 +1,5 @@
 
-## Copyright(c) 2023, 2024 Yoann Robin, Andreia Hisi
+## Copyright(c) 2023 / 2025 Yoann Robin, Andreia Hisi
 ## 
 ## This file is part of CDSupdate.
 ## 
@@ -197,7 +197,7 @@ def BRUT_to_AMIP_format():##{{{
 					os.makedirs(opath)
 				logger.info( f" * Save 'TMP/ERA5-AMIP/fx/{cvar}/{ofile}'" )
 				idata.to_netcdf( os.path.join( opath , ofile ) )
-				return
+				break
 			
 			## Delete last day if all hours are not present
 			t0 = str(idata.time[ 0].values)[:10] + " 00:00"

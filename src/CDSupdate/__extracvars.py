@@ -1,5 +1,5 @@
 
-## Copyright(c) 2023 Yoann Robin
+## Copyright(c) 2023 / 2025 Yoann Robin
 ## 
 ## This file is part of CDSupdate.
 ## 
@@ -71,23 +71,76 @@ def kelvin2fahrenheit(T):
 
 def build_ubtas():##{{{
 	
-	## ta500: temperature at 500hPa
-	## zg500: geopotential at 500hPa
-	## z    : orography
-	## huss : surface specific humidity
-	
 	## Constant
 	Lv      = 2.5008 * 1e6 ## Latent heat of vaporization
 	cp      = 1004.7090    ## Specific heat of air at constant pressure
-	g       = 9.81         ## Gravitational constant
-	
-	## Specific humidity saturation at 500hPa from Clausius-Clapeyron relation
+	g       = 9.80665      ## Gravitational constant
 	epsilon = 0.0180153 / 0.028964
-	hus_sat = epsilon * 6.11 * np.exp( Lv / 461.52 * ( 1 / 273.15 - 1 / ta500 ) ) / 500
 	
-	## And compute upper bound
-	ubtas   = ta500 + Lv / cp * (hus_sat - huss) + g / cp * (zg500 - z)
+	## ta500: temperature at 500hPa
+	## zg500: geopotential at 500hPa
+	## huss : surface specific humidity
+	## z    : orography
 	
+	##
+	area_name = cdsuParams.area_name
+	
+	## Open orography
+	ipath_orog = os.path.join( cdsuParams.tmp , "ERA5-AMIP" , "fx" , "orog"  )
+	idata_orog = xr.open_dataset( os.path.join( ipath_orog , f"ERA5-AMIP_orog_fx_{area_name}.nc" ) )
+	
+	## files
+	ipath_ta500  = os.path.join( cdsuParams.tmp , "ERA5-AMIP" , "hr" , "ta500" )
+	ipath_zg500  = os.path.join( cdsuParams.tmp , "ERA5-AMIP" , "hr" , "zg500" )
+	ipath_huss   = os.path.join( cdsuParams.tmp , "ERA5-AMIP" , "hr" , "huss"  )
+	ifiles_ta500 = sorted(os.listdir(ipath_ta500))
+	ifiles_zg500 = sorted(os.listdir(ipath_zg500))
+	ifiles_huss  = sorted(os.listdir(ipath_huss))
+	
+	## Loop on files
+	for ifile_ta500,ifile_zg500,ifile_huss in zip(ifiles_ta500,ifiles_zg500,ifiles_huss):
+		
+		## Open data
+		idata_ta500 = xr.open_dataset( os.path.join( ipath_ta500 , ifile_ta500 ) )
+		idata_zg500 = xr.open_dataset( os.path.join( ipath_zg500 , ifile_zg500 ) )
+		idata_huss  = xr.open_dataset( os.path.join( ipath_huss  , ifile_huss  ) )
+		
+		## Output
+		odatah = idata_huss.copy( deep = True ).rename( huss = "ubtas" )
+		
+		## Specific humidity saturation at 500hPa from Clausius-Clapeyron relation
+		hus_sat = epsilon * 6.11 * np.exp( Lv / 461.52 * ( 1 / 273.15 - 1 / idata_ta500['ta500'] ) ) / 500
+		
+		## And compute upper bound
+		ubtas   = idata_ta500['ta500'] + Lv / cp * (hus_sat - idata_huss['huss']) + g / cp * (idata_zg500['zg500'] - idata_orog['orog'])
+		odatah['ubtas'] = ubtas[:,0,:,:].drop("pressure_level")
+		
+		## Build daily
+		year   = odatah.time.dt.year[0].values
+		dtime  = [dt.datetime(int(year),1,1) + dt.timedelta( days = int(i) - 1 ) for i in np.unique(odatah.time.dt.dayofyear.values)]
+		odatad = odatah.groupby("time.dayofyear").max().rename( dayofyear = "time" ).assign_coords( time = dtime )
+		
+		## Save hourly
+		opath = os.path.join( cdsuParams.tmp , "ERA5-AMIP" , "hr" , "ubtas" )
+		t0    = str(odatah.time[ 0].values)[:13].replace("-","").replace(" ","").replace("T","")
+		t1    = str(odatah.time[-1].values)[:13].replace("-","").replace(" ","").replace("T","")
+		ofile = f"ERA5-AMIP_ubtas_hr_{area_name}_{t0}-{t1}.nc"
+		target = os.path.join( opath , ofile )
+		if not os.path.isdir(opath):
+			os.makedirs(opath)
+		logger.info( f" * Save 'TMP/ERA5-AMIP/hr/ubtas/{ofile}'" )
+		odatah.to_netcdf( os.path.join( opath , ofile ) )
+		
+		## Save daily
+		opath = os.path.join( cdsuParams.tmp , "ERA5-AMIP" , "day" , "ubtas" )
+		t0    = str(odatad.time[ 0].values)[:10].replace("-","").replace(" ","").replace("T","")
+		t1    = str(odatad.time[-1].values)[:10].replace("-","").replace(" ","").replace("T","")
+		ofile = f"ERA5-AMIP_ubtas_day_{area_name}_{t0}-{t1}.nc"
+		target = os.path.join( opath , ofile )
+		if not os.path.isdir(opath):
+			os.makedirs(opath)
+		logger.info( f" * Save 'TMP/ERA5-AMIP/day/ubtas/{ofile}'" )
+		odatad.to_netcdf( os.path.join( opath , ofile ) )
 ##}}}
 
 def build_sfcWind():##{{{
@@ -491,6 +544,8 @@ def build_EXTRA_cvars():##{{{
 			build_huss()
 		if cvar == "HI":
 			build_HI()
+		if cvar == "ubtas":
+			build_ubtas()
 	
 ##}}}
 
